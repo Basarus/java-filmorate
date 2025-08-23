@@ -24,71 +24,72 @@ public class UserControllerStandaloneTest {
         var storage = new InMemoryUserStorage();
         var service = new UserService(storage);
         var controller = new UserController(service);
-        mvc = MockMvcBuilders.standaloneSetup(controller)
+        mvc = MockMvcBuilders
+                .standaloneSetup(controller)
                 .setControllerAdvice(new ErrorHandler())
                 .build();
     }
 
     @Test
     void loginWithSpacesReturns400() throws Exception {
-        String body = """
-                {
-                  "email": "a@b.com",
-                  "login": "bad login",
-                  "name": "",
-                  "birthday": "2000-01-01"
-                }""";
-        mvc.perform(post("/users")
+        String body = "{"
+                + "\"email\":\"a@b.com\","
+                + "\"login\":\"bad login\","
+                + "\"name\":\"\","
+                + "\"birthday\":\"2000-01-01\""
+                + "}";
+        mvc.perform(
+                post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest());
+                        .content(body)
+        ).andExpect(status().isBadRequest());
     }
 
     @Test
     void emptyNameFallbackToLogin() throws Exception {
-        String body = """
-                {
-                  "email": "user@example.com",
-                  "login": "neo",
-                  "name": "",
-                  "birthday": "2000-01-01"
-                }""";
-        mvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
+        String body = "{"
+                + "\"email\":\"user@example.com\","
+                + "\"login\":\"neo\","
+                + "\"name\":\"\","
+                + "\"birthday\":\"2000-01-01\""
+                + "}";
+        mvc.perform(
+                        post("/users")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("neo"));
     }
 
     @Test
     void putUnknownIdReturns404() throws Exception {
-        String body = """
-                {
-                  "id": 777,
-                  "email": "user@example.com",
-                  "login": "neo",
-                  "name": "N",
-                  "birthday": "2000-01-01"
-                }""";
-        mvc.perform(put("/users")
+        String body = "{"
+                + "\"id\":777,"
+                + "\"email\":\"user@example.com\","
+                + "\"login\":\"neo\","
+                + "\"name\":\"N\","
+                + "\"birthday\":\"2000-01-01\""
+                + "}";
+        mvc.perform(
+                put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isNotFound());
+                        .content(body)
+        ).andExpect(status().isNotFound());
     }
 
     @Test
     void createThenGetListIs200() throws Exception {
-        String body = """
-                {
-                  "email": "ok@example.com",
-                  "login": "trinity",
-                  "name": "",
-                  "birthday": "1990-01-01"
-                }""";
-        mvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
+        String body = "{"
+                + "\"email\":\"ok@example.com\","
+                + "\"login\":\"trinity\","
+                + "\"name\":\"\","
+                + "\"birthday\":\"1990-01-01\""
+                + "}";
+        mvc.perform(
+                        post("/users")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists());
 
         mvc.perform(get("/users"))
