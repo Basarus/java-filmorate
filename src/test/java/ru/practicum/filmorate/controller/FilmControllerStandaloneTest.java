@@ -24,50 +24,69 @@ public class FilmControllerStandaloneTest {
         var storage = new InMemoryFilmStorage();
         var service = new FilmService(storage);
         var controller = new FilmController(service);
-        mvc = MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new ErrorHandler()).build();
+        mvc = MockMvcBuilders
+                .standaloneSetup(controller)
+                .setControllerAdvice(new ErrorHandler())
+                .build();
     }
 
     @Test
     void emptyBodyReturns400() throws Exception {
-        mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isBadRequest());
+        mvc.perform(
+                post("/films")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}")
+        ).andExpect(status().isBadRequest());
     }
 
     @Test
     void negativeDurationReturns400() throws Exception {
-        String body = """
-                {
-                  "name": "Test",
-                  "description": "D",
-                  "releaseDate": "2000-01-01",
-                  "duration": -1
-                }""";
-        mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isBadRequest());
+        String body = "{"
+                + "\"name\":\"Test\","
+                + "\"description\":\"D\","
+                + "\"releaseDate\":\"2000-01-01\","
+                + "\"duration\":-1"
+                + "}";
+        mvc.perform(
+                post("/films")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body)
+        ).andExpect(status().isBadRequest());
     }
 
     @Test
     void createThenGetListIs200() throws Exception {
-        String body = """
-                {
-                  "name": "Ok",
-                  "description": "D",
-                  "releaseDate": "2000-01-01",
-                  "duration": 90
-                }""";
-        mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isOk()).andExpect(jsonPath("$.id").exists());
+        String body = "{"
+                + "\"name\":\"Ok\","
+                + "\"description\":\"D\","
+                + "\"releaseDate\":\"2000-01-01\","
+                + "\"duration\":90"
+                + "}";
+        mvc.perform(
+                        post("/films")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists());
 
-        mvc.perform(get("/films")).andExpect(status().isOk()).andExpect(jsonPath("$[0].name").value("Ok"));
+        mvc.perform(get("/films"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Ok"));
     }
 
     @Test
     void putUnknownIdReturns404() throws Exception {
-        String body = """
-                {
-                  "id": 999,
-                  "name": "X",
-                  "description": "D",
-                  "releaseDate": "2000-01-01",
-                  "duration": 90
-                }""";
-        mvc.perform(put("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isNotFound());
+        String body = "{"
+                + "\"id\":999,"
+                + "\"name\":\"X\","
+                + "\"description\":\"D\","
+                + "\"releaseDate\":\"2000-01-01\","
+                + "\"duration\":90"
+                + "}";
+        mvc.perform(
+                put("/films")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body)
+        ).andExpect(status().isNotFound());
     }
 }
