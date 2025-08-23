@@ -21,7 +21,7 @@ public class InMemoryFilmStorageTest {
         Film f = new Film();
         f.setName("N");
         f.setDescription("D");
-        f.setReleaseDate(LocalDate.of(2000,1,1));
+        f.setReleaseDate(LocalDate.of(2000, 1, 1));
         f.setDuration(90);
         return f;
     }

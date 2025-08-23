@@ -32,12 +32,12 @@ public class UserControllerStandaloneTest {
     @Test
     void loginWithSpacesReturns400() throws Exception {
         String body = """
-        {
-          "email": "a@b.com",
-          "login": "bad login",
-          "name": "",
-          "birthday": "2000-01-01"
-        }""";
+                {
+                  "email": "a@b.com",
+                  "login": "bad login",
+                  "name": "",
+                  "birthday": "2000-01-01"
+                }""";
         mvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -47,12 +47,12 @@ public class UserControllerStandaloneTest {
     @Test
     void emptyNameFallbackToLogin() throws Exception {
         String body = """
-        {
-          "email": "user@example.com",
-          "login": "neo",
-          "name": "",
-          "birthday": "2000-01-01"
-        }""";
+                {
+                  "email": "user@example.com",
+                  "login": "neo",
+                  "name": "",
+                  "birthday": "2000-01-01"
+                }""";
         mvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -63,13 +63,13 @@ public class UserControllerStandaloneTest {
     @Test
     void putUnknownIdReturns404() throws Exception {
         String body = """
-        {
-          "id": 777,
-          "email": "user@example.com",
-          "login": "neo",
-          "name": "N",
-          "birthday": "2000-01-01"
-        }""";
+                {
+                  "id": 777,
+                  "email": "user@example.com",
+                  "login": "neo",
+                  "name": "N",
+                  "birthday": "2000-01-01"
+                }""";
         mvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -79,12 +79,12 @@ public class UserControllerStandaloneTest {
     @Test
     void createThenGetListIs200() throws Exception {
         String body = """
-        {
-          "email": "ok@example.com",
-          "login": "trinity",
-          "name": "",
-          "birthday": "1990-01-01"
-        }""";
+                {
+                  "email": "ok@example.com",
+                  "login": "trinity",
+                  "name": "",
+                  "birthday": "1990-01-01"
+                }""";
         mvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))

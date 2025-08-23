@@ -40,12 +40,12 @@ public class FilmControllerStandaloneTest {
     @Test
     void negativeDurationReturns400() throws Exception {
         String body = """
-        {
-          "name": "Test",
-          "description": "D",
-          "releaseDate": "2000-01-01",
-          "duration": -1
-        }""";
+                {
+                  "name": "Test",
+                  "description": "D",
+                  "releaseDate": "2000-01-01",
+                  "duration": -1
+                }""";
         mvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -55,12 +55,12 @@ public class FilmControllerStandaloneTest {
     @Test
     void createThenGetListIs200() throws Exception {
         String body = """
-        {
-          "name": "Ok",
-          "description": "D",
-          "releaseDate": "2000-01-01",
-          "duration": 90
-        }""";
+                {
+                  "name": "Ok",
+                  "description": "D",
+                  "releaseDate": "2000-01-01",
+                  "duration": 90
+                }""";
         mvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -75,13 +75,13 @@ public class FilmControllerStandaloneTest {
     @Test
     void putUnknownIdReturns404() throws Exception {
         String body = """
-        {
-          "id": 999,
-          "name": "X",
-          "description": "D",
-          "releaseDate": "2000-01-01",
-          "duration": 90
-        }""";
+                {
+                  "id": 999,
+                  "name": "X",
+                  "description": "D",
+                  "releaseDate": "2000-01-01",
+                  "duration": 90
+                }""";
         mvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))

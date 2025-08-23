@@ -22,7 +22,7 @@ public class InMemoryUserStorageTest {
         u.setEmail("a@b.com");
         u.setLogin("x");
         u.setName("X");
-        u.setBirthday(LocalDate.of(2000,1,1));
+        u.setBirthday(LocalDate.of(2000, 1, 1));
         return u;
     }
 
