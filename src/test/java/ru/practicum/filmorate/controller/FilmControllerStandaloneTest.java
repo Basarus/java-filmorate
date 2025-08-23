@@ -24,17 +24,12 @@ public class FilmControllerStandaloneTest {
         var storage = new InMemoryFilmStorage();
         var service = new FilmService(storage);
         var controller = new FilmController(service);
-        mvc = MockMvcBuilders.standaloneSetup(controller)
-                .setControllerAdvice(new ErrorHandler())
-                .build();
+        mvc = MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new ErrorHandler()).build();
     }
 
     @Test
     void emptyBodyReturns400() throws Exception {
-        mvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest());
+        mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -46,10 +41,7 @@ public class FilmControllerStandaloneTest {
                   "releaseDate": "2000-01-01",
                   "duration": -1
                 }""";
-        mvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest());
+        mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -61,15 +53,9 @@ public class FilmControllerStandaloneTest {
                   "releaseDate": "2000-01-01",
                   "duration": 90
                 }""";
-        mvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists());
+        mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isOk()).andExpect(jsonPath("$.id").exists());
 
-        mvc.perform(get("/films"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Ok"));
+        mvc.perform(get("/films")).andExpect(status().isOk()).andExpect(jsonPath("$[0].name").value("Ok"));
     }
 
     @Test
@@ -82,9 +68,6 @@ public class FilmControllerStandaloneTest {
                   "releaseDate": "2000-01-01",
                   "duration": 90
                 }""";
-        mvc.perform(put("/films")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isNotFound());
+        mvc.perform(put("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isNotFound());
     }
 }
