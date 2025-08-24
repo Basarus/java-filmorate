@@ -1,23 +1,37 @@
 package ru.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.filmorate.exception.NotFoundException;
+import ru.practicum.filmorate.exception.ValidationException;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.storage.FilmStorage;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class FilmService {
-    private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, 12, 28);
     private final FilmStorage storage;
+    private final Validator validator;
+
+    // используется Spring’ом
+    public FilmService(FilmStorage storage, Validator validator) {
+        this.storage = storage;
+        this.validator = validator;
+    }
+
+    public FilmService(FilmStorage storage) {
+        this.storage = storage;
+        this.validator = Validation.buildDefaultValidatorFactory().getValidator();
+    }
 
     public Film create(Film film) {
+        validateBean(film);
         Film saved = storage.save(film);
         log.info("Film created: {} {}", saved.getId(), saved.getName());
         return saved;
@@ -27,6 +41,7 @@ public class FilmService {
         if (film.getId() == null || !storage.exists(film.getId())) {
             throw new NotFoundException("Film id=" + film.getId() + " not found");
         }
+        validateBean(film);
         Film updated = storage.update(film);
         log.info("Film updated: {} {}", updated.getId(), updated.getName());
         return updated;
@@ -34,5 +49,13 @@ public class FilmService {
 
     public List<Film> findAll() {
         return storage.findAll();
+    }
+
+    private void validateBean(Film film) {
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        if (!violations.isEmpty()) {
+            String msg = violations.iterator().next().getMessage();
+            throw new ValidationException(msg);
+        }
     }
 }
