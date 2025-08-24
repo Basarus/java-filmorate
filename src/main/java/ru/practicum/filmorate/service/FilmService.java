@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.exception.ValidationException;
@@ -19,7 +20,7 @@ public class FilmService {
     private final FilmStorage storage;
     private final Validator validator;
 
-    // используется Spring’ом
+    @Autowired
     public FilmService(FilmStorage storage, Validator validator) {
         this.storage = storage;
         this.validator = validator;
@@ -52,10 +53,7 @@ public class FilmService {
     }
 
     private void validateBean(Film film) {
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        if (!violations.isEmpty()) {
-            String msg = violations.iterator().next().getMessage();
-            throw new ValidationException(msg);
-        }
+        Set<ConstraintViolation<Film>> v = validator.validate(film);
+        if (!v.isEmpty()) throw new ValidationException(v.iterator().next().getMessage());
     }
 }

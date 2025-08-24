@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.exception.ValidationException;
@@ -19,6 +20,7 @@ public class UserService {
     private final UserStorage storage;
     private final Validator validator;
 
+    @Autowired
     public UserService(UserStorage storage, Validator validator) {
         this.storage = storage;
         this.validator = validator;
@@ -59,10 +61,7 @@ public class UserService {
     }
 
     private void validateBean(User user) {
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        if (!violations.isEmpty()) {
-            String msg = violations.iterator().next().getMessage();
-            throw new ValidationException(msg);
-        }
+        Set<ConstraintViolation<User>> v = validator.validate(user);
+        if (!v.isEmpty()) throw new ValidationException(v.iterator().next().getMessage());
     }
 }
