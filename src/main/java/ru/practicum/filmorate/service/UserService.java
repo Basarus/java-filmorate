@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.filmorate.exception.NotFoundException;
-import ru.practicum.filmorate.exception.ValidationException;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.storage.UserStorage;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j

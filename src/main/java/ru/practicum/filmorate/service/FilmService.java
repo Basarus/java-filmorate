@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.filmorate.exception.NotFoundException;
-import ru.practicum.filmorate.exception.ValidationException;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.storage.FilmStorage;
 
