@@ -1,5 +1,6 @@
 package ru.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.filmorate.model.Film;
@@ -14,12 +15,12 @@ public class FilmController {
     private final FilmService service;
 
     @PostMapping
-    public Film create(@RequestBody Film film) {
+    public Film create(@Valid @RequestBody Film film) {
         return service.create(film);
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) {
+    public Film update(@Valid @RequestBody Film film) {
         return service.update(film);
     }
 

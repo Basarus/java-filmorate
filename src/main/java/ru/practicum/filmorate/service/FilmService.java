@@ -19,7 +19,6 @@ public class FilmService {
     private final FilmStorage storage;
 
     public Film create(Film film) {
-        validate(film);
         Film saved = storage.save(film);
         log.info("Film created: {} {}", saved.getId(), saved.getName());
         return saved;
@@ -29,7 +28,6 @@ public class FilmService {
         if (film.getId() == null || !storage.exists(film.getId())) {
             throw new NotFoundException("Film id=" + film.getId() + " not found");
         }
-        validate(film);
         Film updated = storage.update(film);
         log.info("Film updated: {} {}", updated.getId(), updated.getName());
         return updated;
@@ -37,23 +35,5 @@ public class FilmService {
 
     public List<Film> findAll() {
         return storage.findAll();
-    }
-
-    private void validate(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ValidationException("name must not be blank");
-        }
-        if (film.getDescription() != null && film.getDescription().length() > 200) {
-            throw new ValidationException("description length must be <= 200");
-        }
-        if (film.getReleaseDate() == null) {
-            throw new ValidationException("releaseDate must not be null");
-        }
-        if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-            throw new ValidationException("releaseDate must be on or after 1895-12-28");
-        }
-        if (film.getDuration() <= 0) {
-            throw new ValidationException("duration must be positive");
-        }
     }
 }
