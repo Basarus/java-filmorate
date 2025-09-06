@@ -72,8 +72,11 @@ public class FilmService {
 
     public void unlike(Integer filmId, Integer userId) {
         Film film = findById(filmId);
-        boolean removed = film.getLikes().remove(userId);
-        log.info("Unlike: film={} user={} removed={}", filmId, userId, removed);
+        if (!userStorage.exists(userId)) {
+            throw new NotFoundException("User id=" + userId + " not found");
+        }
+        film.getLikes().remove(userId);
+        log.info("Unlike: film={} user={}", filmId, userId);
     }
 
     public List<Film> getPopular(int count) {
