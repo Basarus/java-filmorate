@@ -120,10 +120,19 @@ public class FilmControllerStandaloneTest {
 
     @Test
     void unlikeNonExistingOk() throws Exception {
+        var user = new ru.practicum.filmorate.model.User();
+        user.setEmail("u@ex.com");
+        user.setLogin("u");
+        user.setName("");
+        user.setBirthday(java.time.LocalDate.of(1990, 1, 1));
+        userStorage.save(user);
+
         String f = "{" + "\"name\":\"F2\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
-        mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f)).andExpect(status().isOk());
-        mvc.perform(delete("/films/1/like/999")).andExpect(status().isOk());
-        mvc.perform(get("/films/1")).andExpect(status().isOk()).andExpect(jsonPath("$.likes.length()", is(0)));
+        mvc.perform(post("/films").contentType(org.springframework.http.MediaType.APPLICATION_JSON).content(f)).andExpect(status().isOk());
+
+        mvc.perform(delete("/films/1/like/" + user.getId())).andExpect(status().isOk());
+
+        mvc.perform(get("/films/1")).andExpect(status().isOk()).andExpect(jsonPath("$.likes.length()", org.hamcrest.Matchers.is(0)));
     }
 
     @Test
