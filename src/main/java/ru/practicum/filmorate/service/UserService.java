@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.exception.ValidationException;
 import ru.practicum.filmorate.model.User;
-import ru.practicum.filmorate.storage.UserStorage;
+import ru.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 import java.util.Set;
@@ -52,6 +52,38 @@ public class UserService {
 
     public List<User> findAll() {
         return storage.findAll();
+    }
+
+    public User findById(Integer id) {
+        return storage.findById(id).orElseThrow(() -> new NotFoundException("User id=" + id + " not found"));
+    }
+
+    public void addFriend(Integer id, Integer friendId) {
+        if (id.equals(friendId)) throw new ValidationException("Cannot add yourself to friends");
+        User u = findById(id);
+        User f = findById(friendId);
+        boolean added1 = u.getFriends().add(friendId);
+        boolean added2 = f.getFriends().add(id);
+        log.info("Add friend: {} <-> {} (added1={}, added2={})", id, friendId, added1, added2);
+    }
+
+    public List<User> listFriends(Integer id) {
+        User u = findById(id);
+        return u.getFriends().stream().map(this::findById).toList();
+    }
+
+    public void removeFriend(Integer id, Integer friendId) {
+        User u = findById(id);
+        User f = findById(friendId);
+        boolean r1 = u.getFriends().remove(friendId);
+        boolean r2 = f.getFriends().remove(id);
+        log.info("Remove friend: {} x {} (r1={}, r2={})", id, friendId, r1, r2);
+    }
+
+    public List<User> commonFriends(Integer id, Integer otherId) {
+        User u1 = findById(id);
+        User u2 = findById(otherId);
+        return u1.getFriends().stream().filter(u2.getFriends()::contains).map(this::findById).toList();
     }
 
     private void normalize(User user) {

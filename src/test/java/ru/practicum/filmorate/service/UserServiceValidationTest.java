@@ -1,11 +1,13 @@
 package ru.practicum.filmorate.service;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.exception.ValidationException;
 import ru.practicum.filmorate.model.User;
-import ru.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -17,7 +19,9 @@ public class UserServiceValidationTest {
 
     @BeforeEach
     void setUp() {
-        service = new UserService(new InMemoryUserStorage());
+        var storage = new InMemoryUserStorage();
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        service = new UserService(storage, validator);
     }
 
     private User validUser() {

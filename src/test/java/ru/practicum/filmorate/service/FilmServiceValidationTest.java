@@ -1,10 +1,13 @@
 package ru.practicum.filmorate.service;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.filmorate.exception.ValidationException;
 import ru.practicum.filmorate.model.Film;
-import ru.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -17,7 +20,10 @@ public class FilmServiceValidationTest {
 
     @BeforeEach
     void setUp() {
-        service = new FilmService(new InMemoryFilmStorage());
+        var filmStorage = new InMemoryFilmStorage();
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        var userStorage = new InMemoryUserStorage();
+        service = new FilmService(filmStorage, validator, userStorage);
     }
 
     private Film validFilm() {

@@ -1,4 +1,4 @@
-package ru.practicum.filmorate.storage;
+package ru.practicum.filmorate.storage.user;
 
 import ru.practicum.filmorate.model.User;
 

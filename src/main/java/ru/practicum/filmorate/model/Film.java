@@ -6,6 +6,8 @@ import jakarta.validation.constraints.*;
 import ru.practicum.filmorate.validation.DateNotBefore;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film implements Identifiable {
@@ -23,4 +25,6 @@ public class Film implements Identifiable {
 
     @Positive
     private int duration;
+
+    private final Set<Integer> likes = new HashSet<>();
 }

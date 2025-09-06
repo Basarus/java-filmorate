@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.exception.ValidationException;
 import ru.practicum.filmorate.model.Film;
-import ru.practicum.filmorate.storage.FilmStorage;
+import ru.practicum.filmorate.storage.film.FilmStorage;
+import ru.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -19,16 +21,19 @@ import java.util.Set;
 public class FilmService {
     private final FilmStorage storage;
     private final Validator validator;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage storage, Validator validator) {
+    public FilmService(FilmStorage storage, Validator validator, UserStorage userStorage) {
         this.storage = storage;
         this.validator = validator;
+        this.userStorage = userStorage;
     }
 
     public FilmService(FilmStorage storage) {
         this.storage = storage;
         this.validator = Validation.buildDefaultValidatorFactory().getValidator();
+        this.userStorage = null;
     }
 
     public Film create(Film film) {
@@ -50,6 +55,29 @@ public class FilmService {
 
     public List<Film> findAll() {
         return storage.findAll();
+    }
+
+    public Film findById(Integer id) {
+        return storage.findById(id).orElseThrow(() -> new NotFoundException("Film id=" + id + " not found"));
+    }
+
+    public void like(Integer filmId, Integer userId) {
+        Film film = findById(filmId);
+        if (userStorage == null || userStorage.findById(userId).isEmpty()) {
+            throw new NotFoundException("User id=" + userId + " not found");
+        }
+        boolean added = film.getLikes().add(userId);
+        log.info("Like: film={} user={} added={}", filmId, userId, added);
+    }
+
+    public void unlike(Integer filmId, Integer userId) {
+        Film film = findById(filmId);
+        boolean removed = film.getLikes().remove(userId);
+        log.info("Unlike: film={} user={} removed={}", filmId, userId, removed);
+    }
+
+    public List<Film> getPopular(int count) {
+        return storage.findAll().stream().sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed().thenComparing(Film::getId)).limit(count).toList();
     }
 
     private void validateBean(Film film) {

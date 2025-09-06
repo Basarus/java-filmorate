@@ -3,6 +3,7 @@ package ru.practicum.filmorate.storage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.filmorate.model.User;
+import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
