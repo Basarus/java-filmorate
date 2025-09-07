@@ -1,7 +1,5 @@
 package ru.practicum.filmorate.controller;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -30,8 +28,7 @@ public class FilmControllerStandaloneTest {
     void setup() {
         var filmStorage = new InMemoryFilmStorage();
         userStorage = new InMemoryUserStorage();
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-        var service = new FilmService(filmStorage, validator, userStorage);
+        var service = new FilmService(filmStorage, userStorage);
         var controller = new FilmController(service);
         mvc = MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new ErrorHandler()).build();
     }
@@ -128,7 +125,7 @@ public class FilmControllerStandaloneTest {
         userStorage.save(user);
 
         String f = "{" + "\"name\":\"F2\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
-        mvc.perform(post("/films").contentType(org.springframework.http.MediaType.APPLICATION_JSON).content(f)).andExpect(status().isOk());
+        mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f)).andExpect(status().isOk());
 
         mvc.perform(delete("/films/1/like/" + user.getId())).andExpect(status().isOk());
 

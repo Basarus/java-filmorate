@@ -1,7 +1,5 @@
 package ru.practicum.filmorate.controller;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -22,8 +20,7 @@ public class UserControllerStandaloneTest {
     @BeforeEach
     void setup() {
         var storage = new InMemoryUserStorage();
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-        var service = new UserService(storage, validator);
+        var service = new UserService(storage);
         var controller = new UserController(service);
         mvc = MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new ErrorHandler()).build();
     }

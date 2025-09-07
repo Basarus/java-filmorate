@@ -1,11 +1,8 @@
 package ru.practicum.filmorate.service;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.filmorate.exception.NotFoundException;
-import ru.practicum.filmorate.exception.ValidationException;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
@@ -20,8 +17,7 @@ public class UserServiceValidationTest {
     @BeforeEach
     void setUp() {
         var storage = new InMemoryUserStorage();
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-        service = new UserService(storage, validator);
+        service = new UserService(storage);
     }
 
     private User validUser() {
@@ -31,48 +27,6 @@ public class UserServiceValidationTest {
         u.setName("");
         u.setBirthday(LocalDate.of(2000, 1, 1));
         return u;
-    }
-
-    @Test
-    void rejectEmailWithoutAt() {
-        User u = validUser();
-        u.setEmail("not-email");
-        assertThrows(ValidationException.class, () -> service.create(u));
-    }
-
-    @Test
-    void rejectBlankEmail() {
-        User u = validUser();
-        u.setEmail("   ");
-        assertThrows(ValidationException.class, () -> service.create(u));
-    }
-
-    @Test
-    void rejectLoginWithSpaces() {
-        User u = validUser();
-        u.setLogin("bad login");
-        assertThrows(ValidationException.class, () -> service.create(u));
-    }
-
-    @Test
-    void rejectBlankLogin() {
-        User u = validUser();
-        u.setLogin("   ");
-        assertThrows(ValidationException.class, () -> service.create(u));
-    }
-
-    @Test
-    void rejectNullBirthday() {
-        User u = validUser();
-        u.setBirthday(null);
-        assertThrows(ValidationException.class, () -> service.create(u));
-    }
-
-    @Test
-    void rejectFutureBirthday() {
-        User u = validUser();
-        u.setBirthday(LocalDate.now().plusDays(1));
-        assertThrows(ValidationException.class, () -> service.create(u));
     }
 
     @Test
