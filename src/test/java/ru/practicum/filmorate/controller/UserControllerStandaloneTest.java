@@ -22,7 +22,8 @@ public class UserControllerStandaloneTest {
         var storage = new InMemoryUserStorage();
         var service = new UserService(storage);
         var controller = new UserController(service);
-        mvc = MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new ErrorHandler()).build();
+        var friendshipController = new FriendshipController(service);
+        mvc = MockMvcBuilders.standaloneSetup(controller, friendshipController).setControllerAdvice(new ErrorHandler()).build();
     }
 
     @Test

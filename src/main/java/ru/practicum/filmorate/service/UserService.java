@@ -1,81 +1,87 @@
 package ru.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import ru.practicum.filmorate.dao.FriendshipDao;
+import ru.practicum.filmorate.dao.InMemoryFriendshipDao;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.exception.ValidationException;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class UserService {
+    private final UserStorage users;
+    private final FriendshipDao friendships;
 
-    private final UserStorage storage;
+    @Autowired
+    public UserService(UserStorage userStorage) {
+        this.users = userStorage;
+        this.friendships = new InMemoryFriendshipDao();
+    }
 
-    public User create(User user) {
-        normalize(user);
-        User saved = storage.save(user);
-        log.info("User created: {} {}", saved.getId(), saved.getLogin());
+    public User create(User u) {
+        if (u.getName() == null || u.getName().isBlank()) u.setName(u.getLogin());
+        User saved = users.save(u);
+        if (friendships instanceof InMemoryFriendshipDao m) m.addUserToIndex(saved);
         return saved;
     }
 
-    public User update(User user) {
-        if (user.getId() == null || !storage.exists(user.getId())) {
-            throw new NotFoundException("User id=" + user.getId() + " not found");
-        }
-        normalize(user);
-        User updated = storage.update(user);
-        log.info("User updated: {} {}", updated.getId(), updated.getLogin());
+    public User update(User u) {
+        exists(u.getId());
+        if (u.getName() == null || u.getName().isBlank()) u.setName(u.getLogin());
+        User updated = users.update(u);
+        if (friendships instanceof InMemoryFriendshipDao m) m.addUserToIndex(updated);
         return updated;
     }
 
     public List<User> findAll() {
-        return storage.findAll();
+        return users.findAll();
     }
 
-    public User findById(Integer id) {
-        return storage.findById(id).orElseThrow(() -> new NotFoundException("User id=" + id + " not found"));
+    public User findById(int id) {
+        return users.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: id=" + id));
     }
 
-    public void addFriend(Integer id, Integer friendId) {
-        if (id.equals(friendId)) throw new ValidationException("Cannot add yourself to friends");
-        User a = findById(id);
-        User b = findById(friendId);
-        boolean added1 = a.getFriends().add(b.getId());
-        boolean added2 = b.getFriends().add(a.getId());
-        log.info("Add friend: {} <-> {} (added1={}, added2={})", id, friendId, added1, added2);
+    public void addFriend(int id, int friendId) {
+        if (id == friendId) throw new ValidationException("Нельзя добавить в друзья самого себя");
+        exists(id);
+        exists(friendId);
+        friendships.add(id, friendId);
     }
 
-    public void removeFriend(Integer id, Integer friendId) {
-        User a = findById(id);
-        User b = findById(friendId);
-        boolean r1 = a.getFriends().remove(b.getId());
-        boolean r2 = b.getFriends().remove(a.getId());
-        log.info("Remove friend: {} x {} (r1={}, r2={})", id, friendId, r1, r2);
+    public void removeFriend(int id, int friendId) {
+        exists(id);
+        exists(friendId);
+        friendships.remove(id, friendId);
     }
 
-    public List<User> listFriends(Integer id) {
-        User u = findById(id);
-        Set<Integer> ids = u.getFriends();
-        return ids.stream().map(this::findById).collect(Collectors.toList());
+    public List<User> friends(int id) {
+        exists(id);
+        return friendships.friendsOf(id);
     }
 
-    public List<User> commonFriends(Integer id, Integer otherId) {
-        User a = findById(id);
-        User b = findById(otherId);
-        return a.getFriends().stream().filter(b.getFriends()::contains).map(this::findById).collect(Collectors.toList());
+    public List<User> common(int id, int otherId) {
+        exists(id);
+        exists(otherId);
+        return friendships.commonFriends(id, otherId);
     }
 
-    private void normalize(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+    public List<User> listFriends(int id) {
+        return friends(id);
+    }
+
+    public List<User> commonFriends(int id, int otherId) {
+        return common(id, otherId);
+    }
+
+    private void exists(int id) {
+        if (!users.exists(id)) throw new NotFoundException("Пользователь не найден");
     }
 }

@@ -1,30 +1,30 @@
 package ru.practicum.filmorate.model;
 
+
 import lombok.Data;
 import ru.practicum.filmorate.storage.Identifiable;
 import jakarta.validation.constraints.*;
 import ru.practicum.filmorate.validation.DateNotBefore;
 
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Data
 public class Film implements Identifiable {
     private Integer id;
-
     @NotBlank
     private String name;
-
     @Size(max = 200)
     private String description;
-
     @NotNull
     @DateNotBefore("1895-12-28")
     private LocalDate releaseDate;
-
     @Positive
     private int duration;
-
+    private Integer mpaId;
+    private Set<Integer> genreIds = new HashSet<>();
     private final Set<Integer> likes = new HashSet<>();
 }

@@ -3,10 +3,13 @@ package ru.practicum.filmorate.handler;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.exception.ValidationException;
 
@@ -53,5 +56,11 @@ public class ErrorHandler {
     public Map<String, String> handleUnexpected(Throwable e) {
         log.error("Unexpected error", e);
         return Map.of("error", "Internal server error");
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    @ResponseBody
+    public ResponseEntity<String> handleResponseStatus(ResponseStatusException ex) {
+        return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
     }
 }
