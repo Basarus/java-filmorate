@@ -31,7 +31,7 @@ public class FilmController {
         f.setDescription(r.description());
         f.setReleaseDate(r.releaseDate());
         f.setDuration(r.duration());
-        f.setMpaId(r.mpa().getId());
+        f.setMpaId(r.mpaId());
         if (r.genreIds() != null) f.getGenreIds().addAll(r.genreIds());
         Film created = service.create(f);
         return map(created.getId());
@@ -45,7 +45,7 @@ public class FilmController {
         f.setDescription(r.description());
         f.setReleaseDate(r.releaseDate());
         f.setDuration(r.duration());
-        f.setMpaId(r.mpa().getId());
+        f.setMpaId(r.mpaId());
         if (r.genreIds() != null) f.getGenreIds().addAll(r.genreIds());
         Film updated = service.update(f);
         return map(updated.getId());
