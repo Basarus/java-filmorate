@@ -2,7 +2,6 @@ package ru.practicum.filmorate.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.dao.MpaDao;
