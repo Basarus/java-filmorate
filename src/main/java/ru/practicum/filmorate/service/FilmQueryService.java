@@ -1,6 +1,5 @@
 package ru.practicum.filmorate.service;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -9,15 +8,12 @@ import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.model.Genre;
 import ru.practicum.filmorate.model.Mpa;
 
-
 import java.util.*;
-
 
 @Service
 @RequiredArgsConstructor
 public class FilmQueryService {
     private final JdbcTemplate jdbc;
-
 
     private static final RowMapper<Film> F = (rs, n) -> {
         Film f = new Film();
@@ -30,10 +26,8 @@ public class FilmQueryService {
         return f;
     };
 
-
     public record FullFilm(Film film, Mpa mpa, List<Genre> genres) {
     }
-
 
     public FullFilm load(int filmId) {
         Film film = jdbc.query("SELECT * FROM films WHERE id=?", F, filmId).stream().findFirst().orElse(null);
