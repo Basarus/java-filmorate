@@ -45,6 +45,7 @@ public class FilmQueryService {
         Set<Integer> likes = new HashSet<>(jdbc.query("""
                 SELECT user_id FROM film_likes WHERE film_id = ?
                 """, (rs, n) -> rs.getInt("user_id"), filmId));
+
         film.getLikes().addAll(likes);
 
         return new FullFilm(film, mpa, genres);
@@ -62,10 +63,12 @@ public class FilmQueryService {
         });
 
         Map<Integer, List<Genre>> gmap = new HashMap<>();
+
         jdbc.query("""
                 SELECT fg.film_id, g.id, g.name FROM film_genre fg 
                 JOIN genres g ON g.id = fg.genre_id
                 """, rs -> {
+
             int filmId = rs.getInt(1);
             int genreId = rs.getInt(2);
             String name = rs.getString(3);
@@ -84,6 +87,7 @@ public class FilmQueryService {
         });
 
         List<FullFilm> res = new ArrayList<>();
+
         for (Film f : films) {
             f.getLikes().addAll(lmap.getOrDefault(f.getId(), Set.of()));
             res.add(new FullFilm(f, mpaMap.get(f.getMpaId()), gmap.getOrDefault(f.getId(), List.of())));
