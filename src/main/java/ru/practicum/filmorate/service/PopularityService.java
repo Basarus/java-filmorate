@@ -24,10 +24,6 @@ public class PopularityService {
     };
 
     public List<Film> top(int limit) {
-        return jdbc.query(
-                "SELECT f.* FROM films f LEFT JOIN film_likes fl ON fl.film_id=f.id " +
-                        "GROUP BY f.id ORDER BY COUNT(fl.user_id) DESC, f.id ASC FETCH FIRST ? ROWS ONLY",
-                M, limit
-        );
+        return jdbc.query("SELECT f.* FROM films f LEFT JOIN film_likes fl ON fl.film_id=f.id " + "GROUP BY f.id ORDER BY COUNT(fl.user_id) DESC, f.id ASC FETCH FIRST ? ROWS ONLY", M, limit);
     }
 }

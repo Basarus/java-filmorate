@@ -37,13 +37,10 @@ public class FilmQueryService {
 
 
     public FullFilm load(int filmId) {
-        Film film = jdbc.query("SELECT * FROM films WHERE id=?", F, filmId)
-                .stream().findFirst().orElse(null);
+        Film film = jdbc.query("SELECT * FROM films WHERE id=?", F, filmId).stream().findFirst().orElse(null);
         if (film == null) return null;
 
-        Mpa mpa = jdbc.query("SELECT * FROM mpa WHERE id=?", (rs, n) ->
-                        new Mpa(rs.getInt("id"), rs.getString("name")), film.getMpaId())
-                .stream().findFirst().orElse(null);
+        Mpa mpa = jdbc.query("SELECT * FROM mpa WHERE id=?", (rs, n) -> new Mpa(rs.getInt("id"), rs.getString("name")), film.getMpaId()).stream().findFirst().orElse(null);
 
         List<Genre> genres = jdbc.query("""
                 SELECT g.* FROM film_genre fg 

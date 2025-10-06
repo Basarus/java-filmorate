@@ -53,9 +53,7 @@ public class FilmController {
 
     @GetMapping
     public List<FilmResponse> all() {
-        return service.findAll().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+        return service.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -75,9 +73,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<FilmResponse> popular(@RequestParam(defaultValue = "10") int count) {
-        return service.top(count).stream()
-                .map(f -> map(f.getId()))
-                .collect(Collectors.toList());
+        return service.top(count).stream().map(f -> map(f.getId())).collect(Collectors.toList());
     }
 
     private FilmResponse map(int filmId) {
@@ -86,31 +82,13 @@ public class FilmController {
             if (full == null) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found after creation");
             }
-            return new FilmResponse(
-                    full.film().getId(),
-                    full.film().getName(),
-                    full.film().getDescription(),
-                    full.film().getReleaseDate(),
-                    full.film().getDuration(),
-                    full.mpa(),
-                    full.genres(),
-                    full.film().getLikes()
-            );
+            return new FilmResponse(full.film().getId(), full.film().getName(), full.film().getDescription(), full.film().getReleaseDate(), full.film().getDuration(), full.mpa(), full.genres(), full.film().getLikes());
         }
         Film f = service.findById(filmId);
         return toResponse(f);
     }
 
     private FilmResponse toResponse(Film f) {
-        return new FilmResponse(
-                f.getId(),
-                f.getName(),
-                f.getDescription(),
-                f.getReleaseDate(),
-                f.getDuration(),
-                f.getMpaId() == null ? null : new Mpa(f.getMpaId(), null),
-                new ArrayList<>(),
-                f.getLikes()
-        );
+        return new FilmResponse(f.getId(), f.getName(), f.getDescription(), f.getReleaseDate(), f.getDuration(), f.getMpaId() == null ? null : new Mpa(f.getMpaId(), null), new ArrayList<>(), f.getLikes());
     }
 }

@@ -17,8 +17,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GenreController {
     private final GenreDao dao;
+
     @GetMapping
-    public List<Genre> all() { return dao.findAll(); }
+    public List<Genre> all() {
+        return dao.findAll();
+    }
+
     @GetMapping("/{id}")
-    public Genre one(@PathVariable int id) { return dao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); }
+    public Genre one(@PathVariable int id) {
+        return dao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
 }

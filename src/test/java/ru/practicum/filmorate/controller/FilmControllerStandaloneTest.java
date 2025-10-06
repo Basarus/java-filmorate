@@ -160,8 +160,7 @@ public class FilmControllerStandaloneTest {
         userStorage.save(u);
 
         IntStream.rangeClosed(1, 12).forEach(i -> {
-            String f = "{" + "\"name\":\"F" + i + "\"," + "\"description\":\"D\"," + "\"duration\":100," + "\"duration\":100," +
-                    "\"mpaId\":1," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
+            String f = "{" + "\"name\":\"F" + i + "\"," + "\"description\":\"D\"," + "\"duration\":100," + "\"duration\":100," + "\"mpaId\":1," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
             try {
                 mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f)).andExpect(status().isOk());
             } catch (Exception e) {

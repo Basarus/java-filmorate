@@ -31,8 +31,7 @@ public class ErrorHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleConstraintViolation(ConstraintViolationException e) {
-        String message = e.getConstraintViolations().stream()
-                .findFirst().map(v -> v.getMessage()).orElse("Validation failed");
+        String message = e.getConstraintViolations().stream().findFirst().map(v -> v.getMessage()).orElse("Validation failed");
         log.error("Constraint violation: {}", message);
         return Map.of("error", message);
     }

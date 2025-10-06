@@ -17,8 +17,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MpaController {
     private final MpaDao dao;
+
     @GetMapping
-    public List<Mpa> all() { return dao.findAll(); }
+    public List<Mpa> all() {
+        return dao.findAll();
+    }
+
     @GetMapping("/{id}")
-    public Mpa one(@PathVariable int id) { return dao.findById(id).orElseThrow(() -> new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND)); }
+    public Mpa one(@PathVariable int id) {
+        return dao.findById(id).orElseThrow(() -> new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
+    }
 }

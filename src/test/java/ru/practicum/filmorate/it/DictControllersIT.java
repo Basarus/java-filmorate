@@ -17,10 +17,7 @@ class DictControllersIT {
 
     @Test
     void genreByIdOk() throws Exception {
-        mvc.perform(get("/genres/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").isNotEmpty());
+        mvc.perform(get("/genres/1")).andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.name").isNotEmpty());
     }
 
     @Test
@@ -30,10 +27,7 @@ class DictControllersIT {
 
     @Test
     void mpaByIdOk() throws Exception {
-        mvc.perform(get("/mpa/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").isNotEmpty());
+        mvc.perform(get("/mpa/1")).andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.name").isNotEmpty());
     }
 
     @Test

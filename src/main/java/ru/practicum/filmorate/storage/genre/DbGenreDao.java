@@ -16,8 +16,7 @@ import java.util.Set;
 public class DbGenreDao implements GenreDao {
     private final JdbcTemplate jdbc;
 
-    private static final RowMapper<Genre> M = (rs, n) ->
-            new Genre(rs.getInt("id"), rs.getString("name"));
+    private static final RowMapper<Genre> M = (rs, n) -> new Genre(rs.getInt("id"), rs.getString("name"));
 
     @Override
     public List<Genre> findAll() {

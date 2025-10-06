@@ -32,10 +32,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User save(User u) {
-        jdbc.update(
-                "INSERT INTO users(email, login, name, birthday) VALUES (?,?,?,?)",
-                u.getEmail(), u.getLogin(), u.getName(), java.sql.Date.valueOf(u.getBirthday())
-        );
+        jdbc.update("INSERT INTO users(email, login, name, birthday) VALUES (?,?,?,?)", u.getEmail(), u.getLogin(), u.getName(), java.sql.Date.valueOf(u.getBirthday()));
         Integer id = jdbc.queryForObject("SELECT MAX(id) FROM users", Integer.class);
         u.setId(id);
         return u;
@@ -43,11 +40,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User u) {
-        jdbc.update(
-                "UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?",
-                u.getEmail(), u.getLogin(), u.getName(),
-                java.sql.Date.valueOf(u.getBirthday()), u.getId()
-        );
+        jdbc.update("UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?", u.getEmail(), u.getLogin(), u.getName(), java.sql.Date.valueOf(u.getBirthday()), u.getId());
         return u;
     }
 

@@ -11,7 +11,9 @@ public class InMemoryFriendshipDao extends FriendshipDao {
     private final Map<Integer, Set<Integer>> links = new ConcurrentHashMap<>();
     private final Map<Integer, User> usersIndex = new ConcurrentHashMap<>();
 
-    public InMemoryFriendshipDao() { super(null); }
+    public InMemoryFriendshipDao() {
+        super(null);
+    }
 
     public void addUserToIndex(User u) {
         if (u != null && u.getId() != null) usersIndex.put(u.getId(), u);

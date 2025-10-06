@@ -11,12 +11,18 @@ import java.util.*;
 @Profile("!test")
 public class InMemoryLikesDao extends LikesDao {
     private final Map<Integer, Set<Integer>> likes = new HashMap<>();
-    public InMemoryLikesDao() { super(null); }
 
-    @Override public void like(int filmId, int userId) {
+    public InMemoryLikesDao() {
+        super(null);
+    }
+
+    @Override
+    public void like(int filmId, int userId) {
         likes.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
     }
-    @Override public void unlike(int filmId, int userId) {
+
+    @Override
+    public void unlike(int filmId, int userId) {
         likes.getOrDefault(filmId, Collections.emptySet()).remove(userId);
     }
 }

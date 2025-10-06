@@ -26,8 +26,7 @@ public class FilmService {
     private MpaDao mpaDao;
     private GenreDao genreDao;
 
-    public FilmService(FilmStorage films,
-                       UserStorage users) {
+    public FilmService(FilmStorage films, UserStorage users) {
         this.films = films;
         this.users = users;
     }
@@ -58,8 +57,7 @@ public class FilmService {
         System.out.println("Saved film: " + saved);
         System.out.println("Saved ID: " + saved.getId());
         System.out.println("All films after save: " + films.findAll());
-        return films.findById(saved.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found after creation"));
+        return films.findById(saved.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found after creation"));
     }
 
     public Film update(Film f) {
@@ -100,10 +98,7 @@ public class FilmService {
 
     public List<Film> top(int count) {
         if (popularity != null) return popularity.top(count);
-        return films.findAll().stream()
-                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-                .limit(count)
-                .toList();
+        return films.findAll().stream().sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size())).limit(count).toList();
     }
 
     private void existsFilm(int id) {

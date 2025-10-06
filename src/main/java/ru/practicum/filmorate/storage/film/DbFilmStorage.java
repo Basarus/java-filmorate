@@ -21,10 +21,7 @@ public class DbFilmStorage implements FilmStorage {
     public Film save(Film film) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(con -> {
-            PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO films (name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)",
-                    Statement.RETURN_GENERATED_KEYS
-            );
+            PreparedStatement ps = con.prepareStatement("INSERT INTO films (name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, film.getName());
             ps.setString(2, film.getDescription());
             ps.setDate(3, Date.valueOf(film.getReleaseDate()));
@@ -46,14 +43,7 @@ public class DbFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        jdbc.update("UPDATE films SET name=?, description=?, release_date=?, duration=?, mpa_id=? WHERE id=?",
-                film.getName(),
-                film.getDescription(),
-                Date.valueOf(film.getReleaseDate()),
-                film.getDuration(),
-                film.getMpaId(),
-                film.getId()
-        );
+        jdbc.update("UPDATE films SET name=?, description=?, release_date=?, duration=?, mpa_id=? WHERE id=?", film.getName(), film.getDescription(), Date.valueOf(film.getReleaseDate()), film.getDuration(), film.getMpaId(), film.getId());
 
         jdbc.update("DELETE FROM film_genre WHERE film_id=?", film.getId());
         for (Integer gid : film.getGenreIds()) {

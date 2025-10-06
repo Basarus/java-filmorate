@@ -11,7 +11,10 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DateNotBefore {
     String message() default "date must be on or after {value}";
+
     String value();
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

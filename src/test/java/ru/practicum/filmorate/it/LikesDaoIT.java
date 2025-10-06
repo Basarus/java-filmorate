@@ -15,6 +15,12 @@ import ru.yandex.practicum.filmorate.FilmorateApplication;
 @SpringBootTest(classes = {FilmorateApplication.class, TestBeans.class})
 @Import({LikesDao.class})
 class LikesDaoIT {
-    @Autowired LikesDao likes;
-    @Test void likeUnlike() { likes.like(1,1); likes.unlike(1,1); }
+    @Autowired
+    LikesDao likes;
+
+    @Test
+    void likeUnlike() {
+        likes.like(1, 1);
+        likes.unlike(1, 1);
+    }
 }
