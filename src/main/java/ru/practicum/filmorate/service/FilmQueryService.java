@@ -36,11 +36,11 @@ public class FilmQueryService {
         Mpa mpa = jdbc.query("SELECT * FROM mpa WHERE id=?", (rs, n) -> new Mpa(rs.getInt("id"), rs.getString("name")), film.getMpaId()).stream().findFirst().orElse(null);
 
         List<Genre> genres = jdbc.query("""
-                SELECT g.* FROM film_genre fg 
-                JOIN genres g ON g.id = fg.genre_id 
-                WHERE fg.film_id = ? 
-                ORDER BY g.id
-                """, (rs, n) -> new Genre(rs.getInt("id"), rs.getString("name")), filmId);
+                 SELECT g.* FROM film_genre fg\s
+                 JOIN genres g ON g.id = fg.genre_id\s
+                 WHERE fg.film_id = ?\s
+                 ORDER BY g.id
+                \s""", (rs, n) -> new Genre(rs.getInt("id"), rs.getString("name")), filmId);
 
         Set<Integer> likes = new HashSet<>(jdbc.query("""
                 SELECT user_id FROM film_likes WHERE film_id = ?
@@ -65,9 +65,9 @@ public class FilmQueryService {
         Map<Integer, List<Genre>> gmap = new HashMap<>();
 
         jdbc.query("""
-                SELECT fg.film_id, g.id, g.name FROM film_genre fg 
-                JOIN genres g ON g.id = fg.genre_id
-                """, rs -> {
+                 SELECT fg.film_id, g.id, g.name FROM film_genre fg\s
+                 JOIN genres g ON g.id = fg.genre_id
+                \s""", rs -> {
 
             int filmId = rs.getInt(1);
             int genreId = rs.getInt(2);
