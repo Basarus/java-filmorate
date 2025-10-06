@@ -5,6 +5,8 @@ import ru.practicum.filmorate.storage.Identifiable;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User implements Identifiable {
@@ -23,4 +25,6 @@ public class User implements Identifiable {
     @NotNull
     @PastOrPresent
     private LocalDate birthday;
+
+    private final Set<Integer> friends = new HashSet<>();
 }

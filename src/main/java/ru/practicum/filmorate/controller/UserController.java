@@ -28,4 +28,29 @@ public class UserController {
     public List<User> findAll() {
         return service.findAll();
     }
+
+    @GetMapping("/{id}")
+    public User findById(@PathVariable Integer id) {
+        return service.findById(id);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        service.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        service.removeFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> listFriends(@PathVariable Integer id) {
+        return service.listFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> common(@PathVariable Integer id, @PathVariable Integer otherId) {
+        return service.commonFriends(id, otherId);
+    }
 }

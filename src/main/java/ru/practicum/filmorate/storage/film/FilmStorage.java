@@ -1,4 +1,4 @@
-package ru.practicum.filmorate.storage;
+package ru.practicum.filmorate.storage.film;
 
 import ru.practicum.filmorate.model.Film;
 
