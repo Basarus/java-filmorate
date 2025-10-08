@@ -1,6 +1,5 @@
 package ru.practicum.filmorate.storage.friendship;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,9 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.practicum.filmorate.model.User;
 
-
 import java.util.List;
-
 
 @Repository
 @Profile("!test")
