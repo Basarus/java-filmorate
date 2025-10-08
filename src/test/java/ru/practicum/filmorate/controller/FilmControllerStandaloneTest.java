@@ -14,6 +14,8 @@ import ru.practicum.filmorate.service.FilmService;
 import ru.practicum.filmorate.service.InMemoryFilmQueryService;
 import ru.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.practicum.filmorate.storage.genre.InMemoryGenreStorage;
+import ru.practicum.filmorate.storage.likes.InMemoryLikesStorage;
+import ru.practicum.filmorate.storage.likes.LikesStorage;
 import ru.practicum.filmorate.storage.mpa.InMemoryMpaStorage;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
@@ -38,6 +40,7 @@ public class FilmControllerStandaloneTest {
     private InMemoryFilmQueryService queryService;
     private FilmService filmService;
     private FilmController filmController;
+    private LikesStorage likeStorage;
 
 
     @BeforeEach
@@ -46,8 +49,12 @@ public class FilmControllerStandaloneTest {
         this.userStorage = new InMemoryUserStorage();
         this.mpaStorage = new InMemoryMpaStorage();
         this.genreStorage = new InMemoryGenreStorage();
-        this.queryService = new InMemoryFilmQueryService(filmStorage, mpaStorage, genreStorage);
+        this.likeStorage = new InMemoryLikesStorage();
+        this.queryService = new InMemoryFilmQueryService(filmStorage, mpaStorage, genreStorage, likeStorage);
         this.filmService = new FilmService(filmStorage, userStorage, queryService);
+        filmService.setMpaDao(mpaStorage);
+        filmService.setGenreDao(genreStorage);
+        filmService.setLikes(likeStorage);
         this.filmController = new FilmController(filmService, queryService);
         mvc = MockMvcBuilders.standaloneSetup(filmController)
                 .setControllerAdvice(new ErrorHandler())

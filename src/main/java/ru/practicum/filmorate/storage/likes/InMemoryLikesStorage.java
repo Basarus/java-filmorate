@@ -13,14 +13,29 @@ public class InMemoryLikesStorage implements LikesStorage {
     @Override
     public void like(int filmId, int userId) {
         likes.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
+        System.out.println(">>> DEBUG like() in storage@" + System.identityHashCode(this) + " => " + likes);
     }
 
     @Override
     public void unlike(int filmId, int userId) {
-        likes.getOrDefault(filmId, Collections.emptySet()).remove(userId);
+        Set<Integer> filmLikes = likes.get(filmId);
+        if (filmLikes != null) {
+            filmLikes.remove(userId);
+            if (filmLikes.isEmpty()) {
+                likes.remove(filmId);
+            }
+        }
     }
 
+    @Override
+    public int countLikes(int filmId) {
+        Set<Integer> filmLikes = likes.get(filmId);
+        return filmLikes == null ? 0 : filmLikes.size();
+    }
+
+    @Override
     public Set<Integer> getLikes(int filmId) {
-        return likes.getOrDefault(filmId, Collections.emptySet());
+        System.out.println(">>> DEBUG getLikes() in storage@" + System.identityHashCode(this) + " => " + likes);
+        return likes.getOrDefault(filmId, new HashSet<>());
     }
 }

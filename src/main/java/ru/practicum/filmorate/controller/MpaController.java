@@ -18,11 +18,31 @@ public class MpaController {
 
     @GetMapping
     public List<Mpa> getAllMpa() {
-        return mpaStorage.findAll();
+        try {
+            List<Mpa> mpaList = mpaStorage.findAll();
+            if (mpaList == null || mpaList.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No MPA ratings found");
+            }
+            return mpaList;
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load MPA ratings", e);
+        }
     }
 
     @GetMapping("/{id}")
     public Mpa getMpaById(@PathVariable int id) {
-        return mpaStorage.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA not found"));
+        if (id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MPA ID must be positive");
+        }
+
+        try {
+            return mpaStorage.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + id + " not found"));
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load MPA rating by id=" + id, e);
+        }
     }
 }

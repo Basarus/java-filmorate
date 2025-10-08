@@ -40,17 +40,23 @@ public class FilmService {
 
     @Autowired(required = false)
     public void setLikes(@Nullable LikesStorage likes) {
-        this.likes = likes != null ? likes : new InMemoryLikesStorage();
+        if (likes != null) {
+            this.likes = likes;
+        }
     }
 
     @Autowired(required = false)
     public void setPopularity(@Nullable PopularityService popularity) {
-        this.popularity = popularity;
+        if (popularity != null) {
+            this.popularity = popularity;
+        }
     }
 
     @Autowired(required = false)
     public void setMpaDao(@Nullable MpaStorage mpaDao) {
-        this.mpaDao = mpaDao != null ? mpaDao : new InMemoryMpaStorage();
+        if (mpaDao != null) {
+            this.mpaDao = mpaDao;
+        }
     }
 
     @Autowired(required = false)
@@ -59,6 +65,15 @@ public class FilmService {
     }
 
     public Film create(Film film) {
+        if (film == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film data must not be null");
+        }
+        if (film.getName() == null || film.getName().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film name cannot be empty");
+        }
+        if (film.getDuration() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film duration must be positive");
+        }
         validateRefs(film);
         Film saved = films.save(film);
         FilmQueryService.FullFilm full = filmQueryService.load(saved.getId());
@@ -69,20 +84,39 @@ public class FilmService {
     }
 
     public Film update(Film f) {
+        if (f == null || f.getId() == null || f.getId() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film ID must be positive for update");
+        }
         existsFilm(f.getId());
+        if (f.getName() == null || f.getName().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film name cannot be empty");
+        }
+        if (f.getDuration() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film duration must be positive");
+        }
         validateRefs(f);
         return films.update(f);
     }
 
     public List<Film> findAll() {
-        return films.findAll();
+        List<Film> all = films.findAll();
+        if (all == null || all.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No films found");
+        }
+        return all;
     }
 
     public Film findById(int id) {
+        if (id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film ID must be positive");
+        }
         return films.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found"));
     }
 
     public void addLike(int filmId, int userId) {
+        if (filmId <= 0 || userId <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film ID and User ID must be positive");
+        }
         existsFilm(filmId);
         existsUser(userId);
         if (likes == null) {
@@ -94,6 +128,9 @@ public class FilmService {
     }
 
     public void removeLike(int filmId, int userId) {
+        if (filmId <= 0 || userId <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film ID and User ID must be positive");
+        }
         existsFilm(filmId);
         existsUser(userId);
         if (likes == null) {
@@ -105,8 +142,27 @@ public class FilmService {
     }
 
     public List<Film> top(int count) {
-        if (popularity != null) return popularity.top(count);
-        return films.findAll().stream().sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size())).limit(count).toList();
+        if (count <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Count must be positive");
+        }
+
+        List<Film> all = films.findAll();
+        if (all == null || all.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No films found");
+        }
+
+        return all.stream().sorted((f1, f2) -> {
+            int likes1 = getLikesCount(f1.getId());
+            int likes2 = getLikesCount(f2.getId());
+            return Integer.compare(likes2, likes1);
+        }).limit(count).toList();
+    }
+
+    private int getLikesCount(int filmId) {
+        if (likes == null) {
+            return findById(filmId).getLikes().size();
+        }
+        return likes.countLikes(filmId);
     }
 
     private void existsFilm(int id) {
@@ -123,29 +179,24 @@ public class FilmService {
 
     private void validateRefs(Film f) {
         if (f.getReleaseDate() != null && f.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Release date cannot be before December 28, 1895");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Release date cannot be before December 28, 1895");
         }
-
         Integer mpaId = f.getMpaId();
         if (mpaId != null) {
             if (mpaDao == null) {
-                return;
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "MPA storage not initialized");
             }
             if (!mpaDao.exists(mpaId)) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "MPA with id=" + mpaId + " not found");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + mpaId + " not found");
             }
         }
-
         Set<Integer> genreIds = f.getGenreIds();
         if (genreIds != null && !genreIds.isEmpty()) {
             if (genreDao == null) {
-                return;
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Genre storage not initialized");
             }
             if (!genreDao.allExist(genreIds)) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "One or more genres not found");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
             }
         }
     }

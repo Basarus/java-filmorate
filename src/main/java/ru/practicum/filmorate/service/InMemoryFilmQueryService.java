@@ -7,6 +7,7 @@ import ru.practicum.filmorate.model.Genre;
 import ru.practicum.filmorate.model.Mpa;
 import ru.practicum.filmorate.storage.film.FilmStorage;
 import ru.practicum.filmorate.storage.genre.GenreStorage;
+import ru.practicum.filmorate.storage.likes.LikesStorage;
 import ru.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.util.ArrayList;
@@ -20,12 +21,14 @@ public class InMemoryFilmQueryService extends FilmQueryService {
     private final FilmStorage films;
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
+    private final LikesStorage likesStorage;
 
-    public InMemoryFilmQueryService(FilmStorage films, MpaStorage mpaStorage, GenreStorage genreStorage) {
+    public InMemoryFilmQueryService(FilmStorage films, MpaStorage mpaStorage, GenreStorage genreStorage, LikesStorage likesStorage) {
         super(null);
         this.films = films;
         this.mpaStorage = mpaStorage;
         this.genreStorage = genreStorage;
+        this.likesStorage = likesStorage;
     }
 
     @Override
@@ -44,6 +47,9 @@ public class InMemoryFilmQueryService extends FilmQueryService {
         if (film.getGenreIds() != null && !film.getGenreIds().isEmpty()) {
             genres = film.getGenreIds().stream().map(genreStorage::findById).flatMap(Optional::stream).toList();
         }
+
+        film.getLikes().clear();
+        film.getLikes().addAll(likesStorage.getLikes(filmId));
 
         return new FullFilm(film, mpa, genres);
     }

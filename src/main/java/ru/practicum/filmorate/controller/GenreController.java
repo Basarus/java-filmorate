@@ -18,11 +18,29 @@ public class GenreController {
 
     @GetMapping
     public List<Genre> getAllGenres() {
-        return genreStorage.findAll();
+        try {
+            List<Genre> genres = genreStorage.findAll();
+            if (genres == null || genres.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No genres found");
+            }
+            return genres;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load genres", e);
+        }
     }
 
     @GetMapping("/{id}")
     public Genre getGenreById(@PathVariable int id) {
-        return genreStorage.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+        if (id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Genre ID must be positive");
+        }
+
+        try {
+            return genreStorage.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre with id=" + id + " not found"));
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load genre by id=" + id, e);
+        }
     }
 }

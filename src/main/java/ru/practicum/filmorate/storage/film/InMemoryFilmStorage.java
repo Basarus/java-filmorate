@@ -10,11 +10,22 @@ import java.util.*;
 @Profile("test")
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
-    private int id = 1;
+    private int nextId = 1;
 
     @Override
     public Film save(Film film) {
-        film.setId(id++);
+        if (film.getId() == null) {
+            film.setId(nextId++);
+        }
+        films.put(film.getId(), film);
+        return film;
+    }
+
+    @Override
+    public Film update(Film film) {
+        if (!films.containsKey(film.getId())) {
+            throw new NoSuchElementException("Film not found with id=" + film.getId());
+        }
         films.put(film.getId(), film);
         return film;
     }
@@ -33,11 +44,4 @@ public class InMemoryFilmStorage implements FilmStorage {
     public boolean exists(int id) {
         return films.containsKey(id);
     }
-
-    @Override
-    public Film update(Film film) {
-        films.put(film.getId(), film);
-        return film;
-    }
 }
-
