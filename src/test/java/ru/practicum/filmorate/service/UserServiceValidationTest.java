@@ -1,5 +1,6 @@
 package ru.practicum.filmorate.service;
 
+import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.filmorate.exception.NotFoundException;
@@ -32,14 +33,14 @@ public class UserServiceValidationTest {
     }
 
     @Test
-    void nameFallbackToLoginWhenEmpty() {
+    void nameFallbackToLoginWhenEmpty() throws BadRequestException {
         User u = validUser();
         User saved = service.create(u);
         assertEquals("neo", saved.getName());
     }
 
     @Test
-    void acceptValidUser() {
+    void acceptValidUser() throws BadRequestException {
         User u = validUser();
         User saved = service.create(u);
         assertNotNull(saved.getId());

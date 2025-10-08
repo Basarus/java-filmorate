@@ -2,7 +2,9 @@ package ru.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.service.UserService;
@@ -25,7 +27,7 @@ public class FriendshipController {
             throw new NotFoundException("User with id=" + friendId + " not found");
         }
         if (id == friendId) {
-            throw new BadRequestException("Cannot add yourself as a friend");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add yourself as a friend");
         }
         service.addFriend(id, friendId);
     }
@@ -63,15 +65,15 @@ public class FriendshipController {
         return service.common(id, otherId);
     }
 
-    private void validateId(int id) throws BadRequestException {
+    private void validateId(int id) {
         if (id <= 0) {
-            throw new BadRequestException("Id must be positive");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id must be positive");
         }
     }
 
-    private void validateIds(int id, int friendId) throws BadRequestException {
+    private void validateIds(int id, int friendId) {
         if (id <= 0 || friendId <= 0) {
-            throw new BadRequestException("Ids must be positive");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ids must be positive");
         }
     }
 }
