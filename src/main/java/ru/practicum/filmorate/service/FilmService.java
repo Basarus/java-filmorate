@@ -123,28 +123,29 @@ public class FilmService {
 
     private void validateRefs(Film f) {
         if (f.getReleaseDate() != null && f.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Release date cannot be before December 28, 1895");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Release date cannot be before December 28, 1895");
         }
 
         Integer mpaId = f.getMpaId();
         if (mpaId != null) {
-            try {
-                if (!mpaDao.exists(mpaId)) {
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + mpaId + " not found");
-                }
-            } catch (Exception ignored) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
+            if (mpaDao == null) {
+                return;
+            }
+            if (!mpaDao.exists(mpaId)) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "MPA with id=" + mpaId + " not found");
             }
         }
 
         Set<Integer> genreIds = f.getGenreIds();
         if (genreIds != null && !genreIds.isEmpty()) {
-            try {
-                if (!genreDao.allExist(genreIds)) {
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
-                }
-            } catch (Exception ignored) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
+            if (genreDao == null) {
+                return;
+            }
+            if (!genreDao.allExist(genreIds)) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "One or more genres not found");
             }
         }
     }
