@@ -143,6 +143,7 @@ public class FilmService {
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
                 }
             } catch (Exception ignored) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
             }
         }
     }
