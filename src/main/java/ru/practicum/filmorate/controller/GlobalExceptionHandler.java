@@ -1,6 +1,6 @@
 package ru.practicum.filmorate.controller;
 
-import org.springframework.http.HttpStatus;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,10 +16,10 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleValidation(MethodArgumentNotValidException ex) {
+    public BadRequestException handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> body = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(e -> body.put(e.getField(), e.getDefaultMessage()));
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new BadRequestException();
     }
 
     @ExceptionHandler(ResponseStatusException.class)
@@ -31,17 +31,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Object> handleNotFound(NotFoundException ex) {
-        return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.NOT_FOUND);
+    public NotFoundException handleNotFound(NotFoundException ex) {
+        return new NotFoundException(ex.getMessage());
     }
 
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<Object> handleValidation(ValidationException ex) {
-        return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.BAD_REQUEST);
+    public BadRequestException handleValidation(ValidationException ex) {
+        return new BadRequestException(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleGeneral(Exception ex) {
-        return new ResponseEntity<>(Map.of("error", "Internal Server Error: " + ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    public InternalError handleGeneral(Exception ex) {
+        return new InternalError(ex.getMessage());
     }
 }
