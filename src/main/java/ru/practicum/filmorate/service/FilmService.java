@@ -5,11 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.filmorate.storage.genre.GenreStorage;
-import ru.practicum.filmorate.storage.likes.LikesDbStorage;
-import ru.practicum.filmorate.storage.mpa.MpaDbStorage;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.storage.film.FilmStorage;
+import ru.practicum.filmorate.storage.genre.GenreStorage;
+import ru.practicum.filmorate.storage.likes.LikesStorage;
+import ru.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -24,9 +24,9 @@ public class FilmService {
     private final FilmStorage films;
     private final UserStorage users;
 
-    private LikesDbStorage likes;
+    private LikesStorage likes;
     private PopularityService popularity;
-    private MpaDbStorage mpaDao;
+    private MpaStorage mpaDao;
     private GenreStorage genreDao;
 
     public FilmService(FilmStorage films, UserStorage users) {
@@ -35,7 +35,7 @@ public class FilmService {
     }
 
     @Autowired(required = false)
-    public void setLikes(@Nullable LikesDbStorage likes) {
+    public void setLikes(@Nullable LikesStorage likes) {
         this.likes = likes;
     }
 
@@ -45,7 +45,7 @@ public class FilmService {
     }
 
     @Autowired(required = false)
-    public void setMpaDao(@Nullable MpaDbStorage mpaDao) {
+    public void setMpaDao(@Nullable MpaStorage mpaDao) {
         this.mpaDao = mpaDao;
     }
 
@@ -71,7 +71,7 @@ public class FilmService {
     }
 
     public Film findById(int id) {
-        return films.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return films.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found"));
     }
 
     public void addLike(int filmId, int userId) {
@@ -102,39 +102,40 @@ public class FilmService {
     }
 
     private void existsFilm(int id) {
-        if (!films.exists(id)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (!films.exists(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found");
+        }
     }
 
     private void existsUser(int id) {
-        if (!users.exists(id)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (!users.exists(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
     }
 
     private void validateRefs(Film f) {
         if (f.getReleaseDate() != null && f.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Release date cannot be before December 28, 1895");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Release date cannot be before December 28, 1895");
         }
 
-        if (mpaDao != null) {
-            Integer mpaId = f.getMpaId();
-            if (mpaId == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MPA must be specified");
-            }
+        Integer mpaId = f.getMpaId();
 
-            boolean exists;
+        if (mpaId != null && mpaDao != null) {
+            boolean mpaExists;
             try {
-                exists = mpaDao.exists(mpaId);
+                mpaExists = mpaDao.exists(mpaId);
             } catch (Exception e) {
-                exists = false;
+                mpaExists = false;
             }
-
-            if (!exists) {
+            if (!mpaExists) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + mpaId + " not found");
             }
         }
 
-        if (genreDao != null) {
-            Set<Integer> genreIds = f.getGenreIds();
-            if (genreIds != null && !genreIds.isEmpty() && !genreDao.allExist(genreIds)) {
+        Set<Integer> genreIds = f.getGenreIds();
+        if (genreDao != null && genreIds != null && !genreIds.isEmpty()) {
+            if (!genreDao.allExist(genreIds)) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
             }
         }

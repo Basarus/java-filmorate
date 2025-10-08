@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository
-@Profile("!test")
+@Profile("test")
 public class InMemoryLikesStorage implements LikesStorage {
     private final Map<Integer, Set<Integer>> likes = new HashMap<>();
 
@@ -18,5 +18,9 @@ public class InMemoryLikesStorage implements LikesStorage {
     @Override
     public void unlike(int filmId, int userId) {
         likes.getOrDefault(filmId, Collections.emptySet()).remove(userId);
+    }
+
+    public Set<Integer> getLikes(int filmId) {
+        return likes.getOrDefault(filmId, Collections.emptySet());
     }
 }

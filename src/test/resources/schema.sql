@@ -32,3 +32,4 @@ CREATE TABLE film_likes (
     film_id INTEGER,
     user_id INTEGER
 );
+
