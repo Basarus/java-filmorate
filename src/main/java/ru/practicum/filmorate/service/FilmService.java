@@ -112,35 +112,23 @@ public class FilmService {
 
     private void validateRefs(Film f) {
         if (f.getReleaseDate() != null && f.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Release date cannot be before December 28, 1895"
-            );
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Release date cannot be before December 28, 1895");
         }
 
         if (mpaDao != null) {
             Integer mpaId = f.getMpaId();
             if (mpaId == null) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "MPA must be specified"
-                );
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MPA must be specified");
             }
             if (!mpaDao.exists(mpaId)) {
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "MPA with id=" + mpaId + " not found"
-                );
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + mpaId + " not found");
             }
         }
 
         if (genreDao != null) {
             Set<Integer> genreIds = f.getGenreIds();
             if (genreIds != null && !genreIds.isEmpty() && !genreDao.allExist(genreIds)) {
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "One or more genres not found"
-                );
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
             }
         }
     }
