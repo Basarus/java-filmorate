@@ -1,6 +1,5 @@
 package ru.practicum.filmorate.storage.likes;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 
