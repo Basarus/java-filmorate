@@ -1,6 +1,5 @@
 package ru.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,10 +17,9 @@ public class UserService {
     private final UserStorage users;
     private final FriendshipDao friendships;
 
-    @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FriendshipDao friendshipDao) {
         this.users = userStorage;
-        this.friendships = new InMemoryFriendshipDao();
+        this.friendships = friendshipDao;
     }
 
     public User create(User u) {

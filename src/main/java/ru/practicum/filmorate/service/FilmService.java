@@ -53,9 +53,6 @@ public class FilmService {
     public Film create(Film f) {
         validateRefs(f);
         Film saved = films.save(f);
-        System.out.println("Saved film: " + saved);
-        System.out.println("Saved ID: " + saved.getId());
-        System.out.println("All films after save: " + films.findAll());
         return films.findById(saved.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found after creation"));
     }
 

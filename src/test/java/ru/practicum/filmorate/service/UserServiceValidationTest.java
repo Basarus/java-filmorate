@@ -2,6 +2,7 @@ package ru.practicum.filmorate.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.practicum.filmorate.dao.InMemoryFriendshipDao;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
@@ -17,7 +18,7 @@ public class UserServiceValidationTest {
     @BeforeEach
     void setUp() {
         var storage = new InMemoryUserStorage();
-        service = new UserService(storage);
+        service = new UserService(storage, new InMemoryFriendshipDao());
     }
 
     private User validUser() {

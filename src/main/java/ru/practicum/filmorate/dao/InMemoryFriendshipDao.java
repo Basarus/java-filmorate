@@ -1,19 +1,13 @@
 package ru.practicum.filmorate.dao;
 
-import org.springframework.stereotype.Repository;
 import ru.practicum.filmorate.model.User;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Repository
-public class InMemoryFriendshipDao extends FriendshipDao {
+public class InMemoryFriendshipDao implements FriendshipDao {
     private final Map<Integer, Set<Integer>> links = new ConcurrentHashMap<>();
     private final Map<Integer, User> usersIndex = new ConcurrentHashMap<>();
-
-    public InMemoryFriendshipDao() {
-        super(null);
-    }
 
     public void addUserToIndex(User u) {
         if (u != null && u.getId() != null) usersIndex.put(u.getId(), u);

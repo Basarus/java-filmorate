@@ -4,11 +4,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.practicum.filmorate.model.User;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 
 @Repository("userDbStorage")
 @Qualifier("userDbStorage")
@@ -32,15 +38,32 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User save(User u) {
-        jdbc.update("INSERT INTO users(email, login, name, birthday) VALUES (?,?,?,?)", u.getEmail(), u.getLogin(), u.getName(), java.sql.Date.valueOf(u.getBirthday()));
-        Integer id = jdbc.queryForObject("SELECT MAX(id) FROM users", Integer.class);
-        u.setId(id);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                    "INSERT INTO users(email, login, name, birthday) VALUES (?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS
+            );
+            ps.setString(1, u.getEmail());
+            ps.setString(2, u.getLogin());
+            ps.setString(3, u.getName());
+            ps.setDate(4, Date.valueOf(u.getBirthday()));
+            return ps;
+        }, keyHolder);
+        u.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         return u;
     }
 
     @Override
     public User update(User u) {
-        jdbc.update("UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?", u.getEmail(), u.getLogin(), u.getName(), java.sql.Date.valueOf(u.getBirthday()), u.getId());
+        jdbc.update(
+                "UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?",
+                u.getEmail(),
+                u.getLogin(),
+                u.getName(),
+                Date.valueOf(u.getBirthday()),
+                u.getId()
+        );
         return u;
     }
 

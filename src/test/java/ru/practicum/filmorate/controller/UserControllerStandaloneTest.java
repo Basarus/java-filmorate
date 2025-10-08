@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.filmorate.dao.InMemoryFriendshipDao;
 import ru.practicum.filmorate.handler.ErrorHandler;
 import ru.practicum.filmorate.service.UserService;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
@@ -20,7 +21,7 @@ public class UserControllerStandaloneTest {
     @BeforeEach
     void setup() {
         var storage = new InMemoryUserStorage();
-        var service = new UserService(storage);
+        var service = new UserService(storage, new InMemoryFriendshipDao());
         var controller = new UserController(service);
         var friendshipController = new FriendshipController(service);
         mvc = MockMvcBuilders.standaloneSetup(controller, friendshipController).setControllerAdvice(new ErrorHandler()).build();
