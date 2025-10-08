@@ -8,7 +8,10 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.storage.film.FilmStorage;
 import ru.practicum.filmorate.storage.genre.GenreStorage;
+import ru.practicum.filmorate.storage.genre.InMemoryGenreStorage;
+import ru.practicum.filmorate.storage.likes.InMemoryLikesStorage;
 import ru.practicum.filmorate.storage.likes.LikesStorage;
+import ru.practicum.filmorate.storage.mpa.InMemoryMpaStorage;
 import ru.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.practicum.filmorate.storage.user.UserStorage;
 
@@ -23,7 +26,6 @@ public class FilmService {
 
     private final FilmStorage films;
     private final UserStorage users;
-
     private LikesStorage likes;
     private PopularityService popularity;
     private MpaStorage mpaDao;
@@ -36,7 +38,7 @@ public class FilmService {
 
     @Autowired(required = false)
     public void setLikes(@Nullable LikesStorage likes) {
-        this.likes = likes;
+        this.likes = likes != null ? likes : new InMemoryLikesStorage();
     }
 
     @Autowired(required = false)
@@ -46,12 +48,12 @@ public class FilmService {
 
     @Autowired(required = false)
     public void setMpaDao(@Nullable MpaStorage mpaDao) {
-        this.mpaDao = mpaDao;
+        this.mpaDao = mpaDao != null ? mpaDao : new InMemoryMpaStorage();
     }
 
     @Autowired(required = false)
     public void setGenreDao(@Nullable GenreStorage genreDao) {
-        this.genreDao = genreDao;
+        this.genreDao = genreDao != null ? genreDao : new InMemoryGenreStorage();
     }
 
     public Film create(Film f) {
@@ -77,23 +79,23 @@ public class FilmService {
     public void addLike(int filmId, int userId) {
         existsFilm(filmId);
         existsUser(userId);
-        if (likes != null) {
-            likes.like(filmId, userId);
-        } else {
+        if (likes == null) {
             Film f = findById(filmId);
             f.getLikes().add(userId);
+            return;
         }
+        likes.like(filmId, userId);
     }
 
     public void removeLike(int filmId, int userId) {
         existsFilm(filmId);
         existsUser(userId);
-        if (likes != null) {
-            likes.unlike(filmId, userId);
-        } else {
+        if (likes == null) {
             Film f = findById(filmId);
             f.getLikes().remove(userId);
+            return;
         }
+        likes.unlike(filmId, userId);
     }
 
     public List<Film> top(int count) {
@@ -115,28 +117,26 @@ public class FilmService {
 
     private void validateRefs(Film f) {
         if (f.getReleaseDate() != null && f.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Release date cannot be before December 28, 1895");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Release date cannot be before December 28, 1895");
         }
 
         Integer mpaId = f.getMpaId();
-
-        if (mpaId != null && mpaDao != null) {
-            boolean mpaExists;
+        if (mpaId != null) {
             try {
-                mpaExists = mpaDao.exists(mpaId);
-            } catch (Exception e) {
-                mpaExists = false;
-            }
-            if (!mpaExists) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + mpaId + " not found");
+                if (!mpaDao.exists(mpaId)) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + mpaId + " not found");
+                }
+            } catch (Exception ignored) {
             }
         }
 
         Set<Integer> genreIds = f.getGenreIds();
-        if (genreDao != null && genreIds != null && !genreIds.isEmpty()) {
-            if (!genreDao.allExist(genreIds)) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
+        if (genreIds != null && !genreIds.isEmpty()) {
+            try {
+                if (!genreDao.allExist(genreIds)) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
+                }
+            } catch (Exception ignored) {
             }
         }
     }

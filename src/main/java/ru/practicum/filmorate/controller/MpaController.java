@@ -22,7 +22,6 @@ public class MpaController {
 
     @GetMapping("/{id}")
     public Mpa one(@PathVariable int id) {
-        return dao.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return dao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }
