@@ -9,9 +9,7 @@ import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.storage.film.FilmStorage;
 import ru.practicum.filmorate.storage.genre.GenreStorage;
 import ru.practicum.filmorate.storage.genre.InMemoryGenreStorage;
-import ru.practicum.filmorate.storage.likes.InMemoryLikesStorage;
 import ru.practicum.filmorate.storage.likes.LikesStorage;
-import ru.practicum.filmorate.storage.mpa.InMemoryMpaStorage;
 import ru.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.practicum.filmorate.storage.user.UserStorage;
 
