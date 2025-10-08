@@ -9,6 +9,8 @@ import ru.practicum.filmorate.dao.*;
 import ru.practicum.filmorate.service.PopularityService;
 import ru.practicum.filmorate.storage.film.FilmStorage;
 import ru.practicum.filmorate.storage.film.DbFilmStorage;
+import ru.practicum.filmorate.storage.genre.GenreDao;
+import ru.practicum.filmorate.storage.genre.InMemoryGenreDao;
 import ru.practicum.filmorate.storage.user.UserDbStorage;
 import ru.practicum.filmorate.storage.user.UserStorage;
 

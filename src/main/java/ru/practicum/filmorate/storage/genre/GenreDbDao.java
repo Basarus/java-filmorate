@@ -1,4 +1,4 @@
-package ru.practicum.filmorate.dao;
+package ru.practicum.filmorate.storage.genre;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -12,31 +12,39 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @Repository
 @Profile("!test")
-public class GenreDao {
-    protected final JdbcTemplate jdbc;
+@RequiredArgsConstructor
+public class GenreDbDao implements GenreDao {
+    private final JdbcTemplate jdbc;
 
-    private static final RowMapper<Genre> G = (rs, n) -> new Genre(rs.getInt("id"), rs.getString("name"));
+    private static final RowMapper<Genre> G = (rs, n) ->
+            new Genre(rs.getInt("id"), rs.getString("name"));
 
+    @Override
     public List<Genre> findAll() {
         return jdbc.query("SELECT * FROM genre ORDER BY id", G);
     }
 
+    @Override
     public Optional<Genre> findById(int id) {
         return jdbc.query("SELECT * FROM genre WHERE id = ?", G, id).stream().findFirst();
     }
 
+    @Override
     public boolean exists(int id) {
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM genre WHERE id = ?", Integer.class, id);
         return count != null && count > 0;
     }
 
+    @Override
     public boolean allExist(Set<Integer> ids) {
         if (ids == null || ids.isEmpty()) return true;
         String placeholders = ids.stream().map(id -> "?").collect(Collectors.joining(","));
-        Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM genre WHERE id IN (" + placeholders + ")", Integer.class, ids.toArray());
+        Integer count = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM genre WHERE id IN (" + placeholders + ")",
+                Integer.class, ids.toArray()
+        );
         return count != null && count == ids.size();
     }
 }

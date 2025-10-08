@@ -1,4 +1,4 @@
-package ru.practicum.filmorate.dao;
+package ru.practicum.filmorate.storage.genre;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -9,11 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 @Profile("test")
-public class InMemoryGenreDao extends GenreDao {
+public class InMemoryGenreDao implements GenreDao {
     private final Map<Integer, Genre> genres = new ConcurrentHashMap<>();
 
     public InMemoryGenreDao() {
-        super(null);
         genres.put(1, new Genre(1, "Комедия"));
         genres.put(2, new Genre(2, "Драма"));
         genres.put(3, new Genre(3, "Мультфильм"));

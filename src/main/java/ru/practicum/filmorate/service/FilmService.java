@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.filmorate.dao.GenreDao;
+import ru.practicum.filmorate.storage.genre.GenreDao;
 import ru.practicum.filmorate.dao.LikesDao;
 import ru.practicum.filmorate.dao.MpaDao;
 import ru.practicum.filmorate.model.Film;
