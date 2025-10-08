@@ -8,7 +8,6 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.dao.GenreDao;
 import ru.practicum.filmorate.dao.LikesDao;
 import ru.practicum.filmorate.dao.MpaDao;
-import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.storage.film.FilmStorage;
 import ru.practicum.filmorate.storage.user.UserStorage;
