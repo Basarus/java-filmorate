@@ -43,19 +43,19 @@ public class TestBeans {
 
     @Bean
     @Primary
-    public LikesStorage likesDao() {
+    public LikesStorage likesStorage() {
         return new InMemoryLikesStorage();
     }
 
     @Bean
     @Primary
-    public MpaStorage mpaDao() {
+    public MpaStorage mpaStorage() {
         return new InMemoryMpaStorage();
     }
 
     @Bean
     @Primary
-    public GenreStorage genreDao() {
+    public GenreStorage genreStorage() {
         return new InMemoryGenreStorage();
     }
 
