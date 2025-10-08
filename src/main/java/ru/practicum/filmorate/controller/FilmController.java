@@ -2,10 +2,12 @@ package ru.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.dto.*;
+import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.model.Mpa;
 import ru.practicum.filmorate.service.FilmQueryService;
@@ -24,7 +26,7 @@ public class FilmController {
     private final FilmQueryService query;
 
     @PostMapping
-    public FilmResponse create(@RequestBody @Valid FilmRequestAdapter r) {
+    public FilmResponse create(@RequestBody @Valid FilmRequestAdapter r) throws BadRequestException {
         validateInput(r.getMpaId(), r.getGenreIds());
         Film f = new Film();
         f.setName(r.getName());
@@ -38,9 +40,9 @@ public class FilmController {
     }
 
     @PutMapping
-    public FilmResponse update(@RequestBody @Valid FilmUpdateRequestAdapter r) {
+    public FilmResponse update(@RequestBody @Valid FilmUpdateRequestAdapter r) throws BadRequestException {
         if (r.getId() == null || r.getId() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film id must be positive");
+            throw new BadRequestException("Film id must be positive");
         }
         validateInput(r.getMpaId(), r.getGenreIds());
         Film f = new Film();
@@ -61,33 +63,33 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public FilmResponse one(@PathVariable int id) {
+    public FilmResponse one(@PathVariable int id) throws BadRequestException {
         if (id <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film id must be positive");
+            throw new BadRequestException("Film id must be positive");
         }
         return map(id);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    public void like(@PathVariable int filmId, @PathVariable int userId) {
+    public void like(@PathVariable int filmId, @PathVariable int userId) throws BadRequestException {
         if (filmId <= 0 || userId <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film and user ids must be positive");
+            throw new BadRequestException("Film and user ids must be positive");
         }
         service.addLike(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    public void unlike(@PathVariable int filmId, @PathVariable int userId) {
+    public void unlike(@PathVariable int filmId, @PathVariable int userId) throws BadRequestException {
         if (filmId <= 0 || userId <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film and user ids must be positive");
+            throw new BadRequestException("Film and user ids must be positive");
         }
         service.removeLike(filmId, userId);
     }
 
     @GetMapping("/popular")
-    public List<FilmResponse> popular(@RequestParam(defaultValue = "10") int count) {
+    public List<FilmResponse> popular(@RequestParam(defaultValue = "10") int count) throws BadRequestException {
         if (count <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Count must be positive");
+            throw new BadRequestException("Count must be positive");
         }
         return service.top(count).stream().map(f -> map(f.getId())).collect(Collectors.toList());
     }
@@ -95,7 +97,7 @@ public class FilmController {
     private FilmResponse map(int filmId) {
         var full = query.load(filmId);
         if (full == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found");
+            throw new NotFoundException("Film not found");
         }
         return new FilmResponse(full.film().getId(), full.film().getName(), full.film().getDescription(), full.film().getReleaseDate(), full.film().getDuration(), full.mpa(), full.genres() != null ? full.genres() : new ArrayList<>(), full.film().getLikes() != null ? full.film().getLikes() : Set.of());
     }
@@ -104,12 +106,12 @@ public class FilmController {
         return new FilmResponse(f.getId(), f.getName(), f.getDescription(), f.getReleaseDate(), f.getDuration(), f.getMpaId() == null ? null : new Mpa(f.getMpaId(), null), new ArrayList<>(), f.getLikes() != null ? f.getLikes() : Set.of());
     }
 
-    private void validateInput(Integer mpaId, Set<Integer> genreIds) {
+    private void validateInput(Integer mpaId, Set<Integer> genreIds) throws BadRequestException {
         if (mpaId != null && mpaId < 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MPA id must be positive");
+            throw new BadRequestException("MPA id must be positive");
         }
         if (genreIds != null && genreIds.stream().anyMatch(id -> id < 1)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Genre ids must be positive");
+            throw new BadRequestException("Genre ids must be positive");
         }
     }
 }
