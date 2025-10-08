@@ -1,10 +1,12 @@
 package ru.practicum.filmorate.storage.user;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 import ru.practicum.filmorate.model.User;
 
 import java.util.*;
 
+@Repository
 @Profile("test")
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();

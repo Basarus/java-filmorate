@@ -1,6 +1,5 @@
 package ru.practicum.filmorate.dao;
 
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import ru.practicum.filmorate.model.Genre;
@@ -9,7 +8,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-@Primary
 @Profile("test")
 public class InMemoryGenreDao extends GenreDao {
     private final Map<Integer, Genre> genres = new ConcurrentHashMap<>();
@@ -26,7 +24,19 @@ public class InMemoryGenreDao extends GenreDao {
 
     @Override
     public List<Genre> findAll() {
-        return genres.values().stream().sorted(Comparator.comparingInt(Genre::getId)).toList();
+        return genres.values().stream()
+                .sorted(Comparator.comparingInt(Genre::getId))
+                .toList();
+    }
+
+    @Override
+    public Optional<Genre> findById(int id) {
+        return Optional.ofNullable(genres.get(id));
+    }
+
+    @Override
+    public boolean exists(int id) {
+        return genres.containsKey(id);
     }
 
     @Override

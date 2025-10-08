@@ -1,6 +1,5 @@
 package ru.practicum.filmorate.storage.user;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -10,8 +9,7 @@ import ru.practicum.filmorate.model.User;
 import java.util.List;
 import java.util.Optional;
 
-@Repository("userDbStorage")
-@Qualifier("userDbStorage")
+@Repository
 @Profile("!test")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbc;
