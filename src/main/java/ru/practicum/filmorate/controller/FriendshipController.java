@@ -25,7 +25,7 @@ public class FriendshipController {
             throw new NotFoundException("User with id=" + friendId + " not found");
         }
         if (id == friendId) {
-            throw new BadRequestException( "Cannot add yourself as a friend");
+            throw new BadRequestException("Cannot add yourself as a friend");
         }
         service.addFriend(id, friendId);
     }
