@@ -8,15 +8,20 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.dao.GenreDao;
 import ru.practicum.filmorate.dao.LikesDao;
 import ru.practicum.filmorate.dao.MpaDao;
+import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.storage.film.FilmStorage;
 import ru.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 @Service
 public class FilmService {
+
+    private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, 12, 28);
+
     private final FilmStorage films;
     private final UserStorage users;
 
@@ -53,9 +58,6 @@ public class FilmService {
     public Film create(Film f) {
         validateRefs(f);
         Film saved = films.save(f);
-        System.out.println("Saved film: " + saved);
-        System.out.println("Saved ID: " + saved.getId());
-        System.out.println("All films after save: " + films.findAll());
         return films.findById(saved.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found after creation"));
     }
 
@@ -109,13 +111,37 @@ public class FilmService {
     }
 
     private void validateRefs(Film f) {
+        if (f.getReleaseDate() != null && f.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Release date cannot be before December 28, 1895"
+            );
+        }
+
         if (mpaDao != null) {
             Integer mpaId = f.getMpaId();
-            if (mpaId == null || !mpaDao.exists(mpaId)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            if (mpaId == null) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "MPA must be specified"
+                );
+            }
+            if (!mpaDao.exists(mpaId)) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "MPA with id=" + mpaId + " not found"
+                );
+            }
         }
+
         if (genreDao != null) {
-            Set<Integer> genres = f.getGenreIds();
-            if (!genreDao.allExist(genres)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            Set<Integer> genreIds = f.getGenreIds();
+            if (genreIds != null && !genreIds.isEmpty() && !genreDao.allExist(genreIds)) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "One or more genres not found"
+                );
+            }
         }
     }
 }
