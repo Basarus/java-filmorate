@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.filmorate.dto.FilmRequest;
-import ru.practicum.filmorate.dto.FilmResponse;
-import ru.practicum.filmorate.dto.FilmUpdateRequest;
+import ru.practicum.filmorate.dto.*;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.model.Mpa;
 import ru.practicum.filmorate.service.FilmQueryService;
@@ -25,28 +23,28 @@ public class FilmController {
     private final FilmQueryService query;
 
     @PostMapping
-    public FilmResponse create(@RequestBody @Valid FilmRequest r) {
+    public FilmResponse create(@RequestBody @Valid FilmRequestAdapter r) {
         Film f = new Film();
-        f.setName(r.name());
-        f.setDescription(r.description());
-        f.setReleaseDate(r.releaseDate());
-        f.setDuration(r.duration());
-        f.setMpaId(r.mpaId());
-        if (r.genreIds() != null) f.getGenreIds().addAll(r.genreIds());
+        f.setName(r.getName());
+        f.setDescription(r.getDescription());
+        f.setReleaseDate(r.getReleaseDate());
+        f.setDuration(r.getDuration());
+        f.setMpaId(r.getMpaId());
+        if (r.getGenreIds() != null) f.getGenreIds().addAll(r.getGenreIds());
         Film created = service.create(f);
         return map(created.getId());
     }
 
     @PutMapping
-    public FilmResponse update(@RequestBody @Valid FilmUpdateRequest r) {
+    public FilmResponse update(@RequestBody @Valid FilmUpdateRequestAdapter r) {
         Film f = new Film();
-        f.setId(r.id());
-        f.setName(r.name());
-        f.setDescription(r.description());
-        f.setReleaseDate(r.releaseDate());
-        f.setDuration(r.duration());
-        f.setMpaId(r.mpaId());
-        if (r.genreIds() != null) f.getGenreIds().addAll(r.genreIds());
+        f.setId(r.getId());
+        f.setName(r.getName());
+        f.setDescription(r.getDescription());
+        f.setReleaseDate(r.getReleaseDate());
+        f.setDuration(r.getDuration());
+        f.setMpaId(r.getMpaId());
+        if (r.getGenreIds() != null) f.getGenreIds().addAll(r.getGenreIds());
         Film updated = service.update(f);
         return map(updated.getId());
     }
