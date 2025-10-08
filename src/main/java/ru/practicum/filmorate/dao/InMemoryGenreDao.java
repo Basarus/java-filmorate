@@ -24,9 +24,7 @@ public class InMemoryGenreDao extends GenreDao {
 
     @Override
     public List<Genre> findAll() {
-        return genres.values().stream()
-                .sorted(Comparator.comparingInt(Genre::getId))
-                .toList();
+        return genres.values().stream().sorted(Comparator.comparingInt(Genre::getId)).toList();
     }
 
     @Override
