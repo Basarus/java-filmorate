@@ -1,38 +1,37 @@
 package ru.practicum.filmorate.dao;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 import ru.practicum.filmorate.model.Genre;
 
-public class InMemoryGenreDao implements GenreDao {
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Repository
+@Primary
+@Profile("test")
+public class InMemoryGenreDao extends GenreDao {
     private final Map<Integer, Genre> genres = new ConcurrentHashMap<>();
 
     public InMemoryGenreDao() {
+        super(null);
         genres.put(1, new Genre(1, "Комедия"));
         genres.put(2, new Genre(2, "Драма"));
+        genres.put(3, new Genre(3, "Мультфильм"));
+        genres.put(4, new Genre(4, "Триллер"));
+        genres.put(5, new Genre(5, "Документальный"));
+        genres.put(6, new Genre(6, "Боевик"));
     }
 
     @Override
     public List<Genre> findAll() {
-        return List.copyOf(genres.values());
-    }
-
-    @Override
-    public Optional<Genre> findById(int id) {
-        return Optional.ofNullable(genres.get(id));
-    }
-
-    @Override
-    public boolean exists(int id) {
-        return genres.containsKey(id);
+        return genres.values().stream().sorted(Comparator.comparingInt(Genre::getId)).toList();
     }
 
     @Override
     public boolean allExist(Set<Integer> ids) {
-        return ids == null || ids.stream().allMatch(genres::containsKey);
+        if (ids == null || ids.isEmpty()) return true;
+        return ids.stream().allMatch(genres::containsKey);
     }
 }

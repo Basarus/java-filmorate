@@ -1,6 +1,7 @@
 package ru.practicum.filmorate.dao;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -11,8 +12,10 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
-public abstract class MpaDao {
-    private final JdbcTemplate jdbc;
+@Profile("!test")
+public class MpaDao {
+    protected final JdbcTemplate jdbc;
+
     private static final RowMapper<Mpa> M = (rs, n) -> new Mpa(rs.getInt("id"), rs.getString("name"));
 
     public List<Mpa> findAll() {
@@ -20,13 +23,11 @@ public abstract class MpaDao {
     }
 
     public Optional<Mpa> findById(int id) {
-        return jdbc.query("SELECT * FROM mpa WHERE id=?", M, id).stream().findFirst();
+        return jdbc.query("SELECT * FROM mpa WHERE id = ?", M, id).stream().findFirst();
     }
 
     public boolean exists(int id) {
-        Integer c = jdbc.queryForObject("SELECT COUNT(*) FROM mpa WHERE id=?", Integer.class, id);
-        return c != null && c > 0;
+        Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM mpa WHERE id = ?", Integer.class, id);
+        return count != null && count > 0;
     }
-
-    public abstract boolean exists(Integer id);
 }

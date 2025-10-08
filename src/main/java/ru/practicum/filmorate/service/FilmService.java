@@ -119,7 +119,15 @@ public class FilmService {
             if (mpaId == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MPA must be specified");
             }
-            if (!mpaDao.exists(mpaId)) {
+
+            boolean exists;
+            try {
+                exists = mpaDao.exists(mpaId);
+            } catch (Exception e) {
+                exists = false;
+            }
+
+            if (!exists) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + mpaId + " not found");
             }
         }
