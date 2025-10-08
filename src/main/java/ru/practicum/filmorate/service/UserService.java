@@ -3,7 +3,6 @@ package ru.practicum.filmorate.service;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.storage.friendship.FriendshipStorage;
