@@ -11,7 +11,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.filmorate.handler.ErrorHandler;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.service.FilmService;
+import ru.practicum.filmorate.service.InMemoryFilmQueryService;
+import ru.practicum.filmorate.service.UserService;
 import ru.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.practicum.filmorate.storage.friendship.InMemoryFriendshipStorage;
+import ru.practicum.filmorate.storage.genre.InMemoryGenreStorage;
+import ru.practicum.filmorate.storage.mpa.InMemoryMpaStorage;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -29,14 +34,26 @@ public class FilmControllerStandaloneTest {
 
     private MockMvc mvc;
     private InMemoryUserStorage userStorage;
+    private InMemoryFilmStorage filmStorage;
+    private InMemoryMpaStorage mpaStorage;
+    private InMemoryGenreStorage genreStorage;
+    private InMemoryFilmQueryService queryService;
+    private FilmService filmService;
+    private FilmController filmController;
+
 
     @BeforeEach
     void setup() {
-        var filmStorage = new InMemoryFilmStorage();
-        userStorage = new InMemoryUserStorage();
-        var service = new FilmService(filmStorage, userStorage);
-        var controller = new FilmController(service, null);
-        mvc = MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new ErrorHandler()).build();
+        this.filmStorage = new InMemoryFilmStorage();
+        this.userStorage = new InMemoryUserStorage();
+        this.mpaStorage = new InMemoryMpaStorage();
+        this.genreStorage = new InMemoryGenreStorage();
+        this.queryService = new InMemoryFilmQueryService(filmStorage, mpaStorage, genreStorage);
+        this.filmService = new FilmService(filmStorage, userStorage, queryService);
+        this.filmController = new FilmController(filmService, queryService);
+        mvc = MockMvcBuilders.standaloneSetup(filmController)
+                .setControllerAdvice(new ErrorHandler())
+                .build();
     }
 
     @Test

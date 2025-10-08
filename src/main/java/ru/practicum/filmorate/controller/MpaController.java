@@ -13,15 +13,16 @@ import java.util.List;
 @RequestMapping("/mpa")
 @RequiredArgsConstructor
 public class MpaController {
-    private final MpaStorage dao;
+
+    private final MpaStorage mpaStorage;
 
     @GetMapping
-    public List<Mpa> all() {
-        return dao.findAll();
+    public List<Mpa> getAllMpa() {
+        return mpaStorage.findAll();
     }
 
     @GetMapping("/{id}")
-    public Mpa one(@PathVariable int id) {
-        return dao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public Mpa getMpaById(@PathVariable int id) {
+        return mpaStorage.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA not found"));
     }
 }

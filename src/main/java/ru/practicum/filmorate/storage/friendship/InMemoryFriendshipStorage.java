@@ -1,13 +1,13 @@
 package ru.practicum.filmorate.storage.friendship;
 
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import ru.practicum.filmorate.model.User;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Repository
+@Component
 @Profile("test")
 public class InMemoryFriendshipStorage implements FriendshipStorage {
     private final Map<Integer, Set<Integer>> links = new ConcurrentHashMap<>();

@@ -1,29 +1,36 @@
 package ru.practicum.filmorate.storage.mpa;
 
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import ru.practicum.filmorate.model.Mpa;
 
 import java.util.*;
 
-@Repository
+@Component
 @Profile("test")
 public class InMemoryMpaStorage implements MpaStorage {
+    private final Map<Integer, Mpa> mpaRatings = new HashMap<>();
 
-    private final Map<Integer, Mpa> data = Map.of(1, new Mpa(1, "G"), 2, new Mpa(2, "PG"), 3, new Mpa(3, "PG-13"), 4, new Mpa(4, "R"), 5, new Mpa(5, "NC-17"));
+    public InMemoryMpaStorage() {
+        mpaRatings.put(1, new Mpa(1, "G"));
+        mpaRatings.put(2, new Mpa(2, "PG"));
+        mpaRatings.put(3, new Mpa(3, "PG-13"));
+        mpaRatings.put(4, new Mpa(4, "R"));
+        mpaRatings.put(5, new Mpa(5, "NC-17"));
+    }
 
     @Override
     public List<Mpa> findAll() {
-        return new ArrayList<>(data.values());
+        return new ArrayList<>(mpaRatings.values());
     }
 
     @Override
     public Optional<Mpa> findById(int id) {
-        return Optional.ofNullable(data.get(id));
+        return Optional.ofNullable(mpaRatings.get(id));
     }
 
     @Override
     public boolean exists(int id) {
-        return data.containsKey(id);
+        return mpaRatings.containsKey(id);
     }
 }

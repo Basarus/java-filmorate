@@ -1,6 +1,7 @@
 package ru.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Profile("!test")
 public class FilmQueryService {
     private final JdbcTemplate jdbc;
 
@@ -31,23 +33,24 @@ public class FilmQueryService {
 
     public FullFilm load(int filmId) {
         Film film = jdbc.query("SELECT * FROM films WHERE id=?", F, filmId).stream().findFirst().orElse(null);
+
         if (film == null) return null;
 
-        Mpa mpa = jdbc.query("SELECT * FROM mpa WHERE id=?", (rs, n) -> new Mpa(rs.getInt("id"), rs.getString("name")), film.getMpaId()).stream().findFirst().orElse(null);
-
+        Mpa mpa = jdbc.query("SELECT * FROM mpa WHERE id=?",
+                (rs, n) -> new Mpa(rs.getInt("id"), rs.getString("name")),
+                film.getMpaId()
+        ).stream().findFirst().orElse(null);
         List<Genre> genres = jdbc.query("""
-                 SELECT g.* FROM film_genre fg\s
-                 JOIN genres g ON g.id = fg.genre_id\s
-                 WHERE fg.film_id = ?\s
-                 ORDER BY g.id
-                \s""", (rs, n) -> new Genre(rs.getInt("id"), rs.getString("name")), filmId);
+                    SELECT g.* FROM film_genre fg
+                    JOIN genres g ON g.id = fg.genre_id
+                    WHERE fg.film_id = ?
+                    ORDER BY g.id
+                """, (rs, n) -> new Genre(rs.getInt("id"), rs.getString("name")), filmId);
 
         Set<Integer> likes = new HashSet<>(jdbc.query("""
-                SELECT user_id FROM film_likes WHERE film_id = ?
+                    SELECT user_id FROM film_likes WHERE film_id = ?
                 """, (rs, n) -> rs.getInt("user_id"), filmId));
-
         film.getLikes().addAll(likes);
-
         return new FullFilm(film, mpa, genres);
     }
 

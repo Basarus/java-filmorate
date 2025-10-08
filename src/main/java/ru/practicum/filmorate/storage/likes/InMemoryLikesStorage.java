@@ -1,11 +1,11 @@
 package ru.practicum.filmorate.storage.likes;
 
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-@Repository
+@Component
 @Profile("test")
 public class InMemoryLikesStorage implements LikesStorage {
     private final Map<Integer, Set<Integer>> likes = new HashMap<>();

@@ -20,10 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ActiveProfiles("test")
 @SpringBootTest(classes = ru.yandex.practicum.filmorate.FilmorateApplication.class)
 @AutoConfigureMockMvc
 @Import(TestBeans.class)
+@ActiveProfiles("test")
 class FilmSerializationIT {
 
     @Autowired

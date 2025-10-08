@@ -1,40 +1,35 @@
 package ru.practicum.filmorate.storage.film;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.practicum.filmorate.model.Film;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.*;
 import java.sql.Date;
 
 @Repository
-@RequiredArgsConstructor
+@Profile("!test")
 public class DbFilmStorage implements FilmStorage {
     private final JdbcTemplate jdbc;
 
+    public DbFilmStorage(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+
     @Override
     public Film save(Film film) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbc.update(con -> {
-            PreparedStatement ps = con.prepareStatement("INSERT INTO films (name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, film.getName());
-            ps.setString(2, film.getDescription());
-            ps.setDate(3, Date.valueOf(film.getReleaseDate()));
-            ps.setInt(4, film.getDuration());
-            ps.setInt(5, film.getMpaId());
-            return ps;
-        }, keyHolder);
+        jdbc.update("""
+                    INSERT INTO films (name, description, release_date, duration, mpa_id)
+                    VALUES (?, ?, ?, ?, ?)
+                """, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpaId());
 
-        film.setId(keyHolder.getKey().intValue());
+        int id = jdbc.queryForObject("SELECT MAX(id) FROM films", Integer.class);
+        film.setId(id);
 
-        if (film.getGenreIds() != null) {
-            for (Integer gid : film.getGenreIds()) {
-                jdbc.update("INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)", film.getId(), gid);
+        if (film.getGenreIds() != null && !film.getGenreIds().isEmpty()) {
+            for (Integer genreId : film.getGenreIds()) {
+                jdbc.update("INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)", id, genreId);
             }
         }
 

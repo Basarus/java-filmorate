@@ -4,10 +4,9 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.jdbc.core.JdbcTemplate;
 import ru.practicum.filmorate.service.PopularityService;
 import ru.practicum.filmorate.storage.film.FilmStorage;
-import ru.practicum.filmorate.storage.film.DbFilmStorage;
+import ru.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.practicum.filmorate.storage.friendship.FriendshipStorage;
 import ru.practicum.filmorate.storage.friendship.InMemoryFriendshipStorage;
 import ru.practicum.filmorate.storage.genre.GenreStorage;
@@ -16,7 +15,7 @@ import ru.practicum.filmorate.storage.likes.InMemoryLikesStorage;
 import ru.practicum.filmorate.storage.likes.LikesStorage;
 import ru.practicum.filmorate.storage.mpa.InMemoryMpaStorage;
 import ru.practicum.filmorate.storage.mpa.MpaStorage;
-import ru.practicum.filmorate.storage.user.UserDbStorage;
+import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.practicum.filmorate.storage.user.UserStorage;
 
 @TestConfiguration
@@ -25,14 +24,14 @@ public class TestBeans {
 
     @Bean
     @Primary
-    public FilmStorage filmStorage(JdbcTemplate jdbcTemplate) {
-        return new DbFilmStorage(jdbcTemplate);
+    public FilmStorage filmStorage() {
+        return new InMemoryFilmStorage();
     }
 
     @Bean
     @Primary
-    public UserStorage userStorage(JdbcTemplate jdbcTemplate) {
-        return new UserDbStorage(jdbcTemplate);
+    public UserStorage userStorage() {
+        return new InMemoryUserStorage();
     }
 
     @Bean

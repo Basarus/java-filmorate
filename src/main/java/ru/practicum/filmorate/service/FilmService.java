@@ -26,14 +26,16 @@ public class FilmService {
 
     private final FilmStorage films;
     private final UserStorage users;
+    private final FilmQueryService filmQueryService;
     private LikesStorage likes;
     private PopularityService popularity;
     private MpaStorage mpaDao;
     private GenreStorage genreDao;
 
-    public FilmService(FilmStorage films, UserStorage users) {
+    public FilmService(FilmStorage films, UserStorage users, FilmQueryService filmQueryService) {
         this.films = films;
         this.users = users;
+        this.filmQueryService = filmQueryService;
     }
 
     @Autowired(required = false)
@@ -56,10 +58,14 @@ public class FilmService {
         this.genreDao = genreDao != null ? genreDao : new InMemoryGenreStorage();
     }
 
-    public Film create(Film f) {
-        validateRefs(f);
-        Film saved = films.save(f);
-        return films.findById(saved.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found after creation"));
+    public Film create(Film film) {
+        validateRefs(film);
+        Film saved = films.save(film);
+        FilmQueryService.FullFilm full = filmQueryService.load(saved.getId());
+        if (full == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found after creation");
+        }
+        return full.film();
     }
 
     public Film update(Film f) {

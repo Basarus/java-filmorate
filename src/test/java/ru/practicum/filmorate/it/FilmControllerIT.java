@@ -20,8 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @SpringBootTest(classes = ru.yandex.practicum.filmorate.FilmorateApplication.class)
-@ActiveProfiles("test")
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class FilmControllerIT {
     @Autowired
     MockMvc mvc;

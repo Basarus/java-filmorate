@@ -30,7 +30,7 @@ public class FilmController {
         f.setReleaseDate(r.getReleaseDate());
         f.setDuration(r.getDuration());
         f.setMpaId(r.getMpaId());
-        if (r.getGenreIds() != null) f.getGenreIds().addAll(r.getGenreIds());
+        f.setGenreIds(r.getGenreIds());
         Film created = service.create(f);
         return map(created.getId());
     }
@@ -44,7 +44,7 @@ public class FilmController {
         f.setReleaseDate(r.getReleaseDate());
         f.setDuration(r.getDuration());
         f.setMpaId(r.getMpaId());
-        if (r.getGenreIds() != null) f.getGenreIds().addAll(r.getGenreIds());
+        f.setGenreIds(r.getGenreIds());
         Film updated = service.update(f);
         return map(updated.getId());
     }
@@ -75,15 +75,12 @@ public class FilmController {
     }
 
     private FilmResponse map(int filmId) {
-        if (query != null) {
-            var full = query.load(filmId);
-            if (full == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found after creation");
-            }
-            return new FilmResponse(full.film().getId(), full.film().getName(), full.film().getDescription(), full.film().getReleaseDate(), full.film().getDuration(), full.mpa(), full.genres(), full.film().getLikes());
+        var full = query.load(filmId);
+        if (full == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found after creation");
         }
-        Film f = service.findById(filmId);
-        return toResponse(f);
+
+        return new FilmResponse(full.film().getId(), full.film().getName(), full.film().getDescription(), full.film().getReleaseDate(), full.film().getDuration(), full.mpa(), full.genres(), full.film().getLikes());
     }
 
     private FilmResponse toResponse(Film f) {
