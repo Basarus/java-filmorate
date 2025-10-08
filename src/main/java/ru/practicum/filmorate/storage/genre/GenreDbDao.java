@@ -18,8 +18,7 @@ import java.util.stream.Collectors;
 public class GenreDbDao implements GenreDao {
     private final JdbcTemplate jdbc;
 
-    private static final RowMapper<Genre> G = (rs, n) ->
-            new Genre(rs.getInt("id"), rs.getString("name"));
+    private static final RowMapper<Genre> G = (rs, n) -> new Genre(rs.getInt("id"), rs.getString("name"));
 
     @Override
     public List<Genre> findAll() {
@@ -41,10 +40,7 @@ public class GenreDbDao implements GenreDao {
     public boolean allExist(Set<Integer> ids) {
         if (ids == null || ids.isEmpty()) return true;
         String placeholders = ids.stream().map(id -> "?").collect(Collectors.joining(","));
-        Integer count = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM genre WHERE id IN (" + placeholders + ")",
-                Integer.class, ids.toArray()
-        );
+        Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM genre WHERE id IN (" + placeholders + ")", Integer.class, ids.toArray());
         return count != null && count == ids.size();
     }
 }
