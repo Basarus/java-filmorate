@@ -4,8 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.filmorate.dao.FriendshipDao;
-import ru.practicum.filmorate.dao.InMemoryFriendshipDao;
+import ru.practicum.filmorate.storage.friendship.FriendshipDbStorage;
+import ru.practicum.filmorate.storage.friendship.FriendshipStorage;
+import ru.practicum.filmorate.storage.friendship.InMemoryFriendshipStorage;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.exception.ValidationException;
 import ru.practicum.filmorate.model.User;
@@ -16,18 +17,18 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage users;
-    private final FriendshipDao friendships;
+    private final FriendshipStorage friendships;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FriendshipStorage friendships) {
         this.users = userStorage;
-        this.friendships = new InMemoryFriendshipDao();
+        this.friendships = friendships;
     }
 
     public User create(User u) {
         if (u.getName() == null || u.getName().isBlank()) u.setName(u.getLogin());
         User saved = users.save(u);
-        if (friendships instanceof InMemoryFriendshipDao m) m.addUserToIndex(saved);
+        if (friendships instanceof InMemoryFriendshipStorage m) m.addUserToIndex(saved);
         return saved;
     }
 
@@ -35,7 +36,7 @@ public class UserService {
         exists(u.getId());
         if (u.getName() == null || u.getName().isBlank()) u.setName(u.getLogin());
         User updated = users.update(u);
-        if (friendships instanceof InMemoryFriendshipDao m) m.addUserToIndex(updated);
+        if (friendships instanceof InMemoryFriendshipStorage m) m.addUserToIndex(updated);
         return updated;
     }
 

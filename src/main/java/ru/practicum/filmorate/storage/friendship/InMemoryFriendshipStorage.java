@@ -1,5 +1,6 @@
-package ru.practicum.filmorate.dao;
+package ru.practicum.filmorate.storage.friendship;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import ru.practicum.filmorate.model.User;
 
@@ -7,13 +8,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class InMemoryFriendshipDao extends FriendshipDao {
+@Profile("test")
+public class InMemoryFriendshipStorage implements FriendshipStorage {
     private final Map<Integer, Set<Integer>> links = new ConcurrentHashMap<>();
     private final Map<Integer, User> usersIndex = new ConcurrentHashMap<>();
-
-    public InMemoryFriendshipDao() {
-        super(null);
-    }
 
     public void addUserToIndex(User u) {
         if (u != null && u.getId() != null) usersIndex.put(u.getId(), u);

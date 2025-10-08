@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.model.User;
+import ru.practicum.filmorate.storage.friendship.InMemoryFriendshipStorage;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -16,8 +17,9 @@ public class UserServiceValidationTest {
 
     @BeforeEach
     void setUp() {
-        var storage = new InMemoryUserStorage();
-        service = new UserService(storage);
+        var userStorage = new InMemoryUserStorage();
+        var friendStorage = new InMemoryFriendshipStorage();
+        service = new UserService(userStorage, friendStorage);
     }
 
     private User validUser() {

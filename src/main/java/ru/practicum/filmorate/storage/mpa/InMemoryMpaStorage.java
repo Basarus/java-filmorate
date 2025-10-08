@@ -1,15 +1,11 @@
-package ru.practicum.filmorate.dao;
+package ru.practicum.filmorate.storage.mpa;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Profile("test")
-public class InMemoryMpaDao extends MpaDao {
-
-    public InMemoryMpaDao() {
-        super(null);
-    }
+public class InMemoryMpaStorage implements MpaStorage {
 
     @Override
     public boolean exists(int id) {

@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.practicum.filmorate.model.Genre;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,18 +14,18 @@ import java.util.stream.Collectors;
 @Repository
 @Profile("!test")
 @RequiredArgsConstructor
-public class GenreDbDao implements GenreDao {
+public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbc;
 
-    private static final RowMapper<Genre> G = (rs, n) -> new Genre(rs.getInt("id"), rs.getString("name"));
+    private static final RowMapper<ru.practicum.filmorate.model.Genre> G = (rs, n) -> new ru.practicum.filmorate.model.Genre(rs.getInt("id"), rs.getString("name"));
 
     @Override
-    public List<Genre> findAll() {
+    public List<ru.practicum.filmorate.model.Genre> findAll() {
         return jdbc.query("SELECT * FROM genre ORDER BY id", G);
     }
 
     @Override
-    public Optional<Genre> findById(int id) {
+    public Optional<ru.practicum.filmorate.model.Genre> findById(int id) {
         return jdbc.query("SELECT * FROM genre WHERE id = ?", G, id).stream().findFirst();
     }
 

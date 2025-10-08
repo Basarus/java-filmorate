@@ -1,11 +1,11 @@
-package ru.practicum.filmorate.dao;
+package ru.practicum.filmorate.storage.likes;
 
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @RequiredArgsConstructor
-public class LikesDao {
+public class LikesDbStorage implements LikesStorage {
     private final JdbcTemplate jdbc;
 
     public void like(int filmId, int userId) {

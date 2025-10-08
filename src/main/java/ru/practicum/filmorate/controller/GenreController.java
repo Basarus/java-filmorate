@@ -5,8 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.filmorate.storage.genre.GenreDao;
-import ru.practicum.filmorate.model.Genre;
+import ru.practicum.filmorate.storage.genre.GenreStorage;
 
 
 import java.util.List;
@@ -16,15 +15,15 @@ import java.util.List;
 @RequestMapping("/genres")
 @RequiredArgsConstructor
 public class GenreController {
-    private final GenreDao dao;
+    private final GenreStorage dao;
 
     @GetMapping
-    public List<Genre> all() {
+    public List<ru.practicum.filmorate.model.Genre> all() {
         return dao.findAll();
     }
 
     @GetMapping("/{id}")
-    public Genre one(@PathVariable int id) {
+    public ru.practicum.filmorate.model.Genre one(@PathVariable int id) {
         return dao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }

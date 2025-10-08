@@ -1,7 +1,8 @@
-package ru.practicum.filmorate.dao;
+package ru.practicum.filmorate.storage.friendship;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -12,8 +13,9 @@ import java.util.List;
 
 
 @Repository
+@Profile("!test")
 @RequiredArgsConstructor
-public class FriendshipDao {
+public class FriendshipDbStorage implements FriendshipStorage {
     private final JdbcTemplate jdbc;
     private static final RowMapper<User> M = (rs, n) -> {
         User u = new User();

@@ -1,4 +1,4 @@
-package ru.practicum.filmorate.dao;
+package ru.practicum.filmorate.storage.mpa;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -13,7 +13,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Repository
 @Profile("!test")
-public class MpaDao {
+public class MpaDbStorage implements MpaStorage {
     protected final JdbcTemplate jdbc;
 
     private static final RowMapper<Mpa> M = (rs, n) -> new Mpa(rs.getInt("id"), rs.getString("name"));

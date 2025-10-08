@@ -7,16 +7,16 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import ru.practicum.filmorate.TestBeans;
-import ru.practicum.filmorate.dao.LikesDao;
+import ru.practicum.filmorate.storage.likes.LikesDbStorage;
 import ru.yandex.practicum.filmorate.FilmorateApplication;
 
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @SpringBootTest(classes = {FilmorateApplication.class, TestBeans.class})
-@Import({LikesDao.class})
+@Import({LikesDbStorage.class})
 class LikesDaoIT {
     @Autowired
-    LikesDao likes;
+    LikesDbStorage likes;
 
     @Test
     void likeUnlike() {

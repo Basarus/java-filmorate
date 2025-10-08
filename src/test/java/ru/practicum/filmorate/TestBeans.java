@@ -5,12 +5,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.practicum.filmorate.dao.*;
 import ru.practicum.filmorate.service.PopularityService;
 import ru.practicum.filmorate.storage.film.FilmStorage;
 import ru.practicum.filmorate.storage.film.DbFilmStorage;
-import ru.practicum.filmorate.storage.genre.GenreDao;
-import ru.practicum.filmorate.storage.genre.InMemoryGenreDao;
+import ru.practicum.filmorate.storage.friendship.FriendshipDbStorage;
+import ru.practicum.filmorate.storage.friendship.FriendshipStorage;
+import ru.practicum.filmorate.storage.friendship.InMemoryFriendshipStorage;
+import ru.practicum.filmorate.storage.genre.GenreStorage;
+import ru.practicum.filmorate.storage.genre.InMemoryGenreStorage;
+import ru.practicum.filmorate.storage.likes.InMemoryLikesStorage;
+import ru.practicum.filmorate.storage.likes.LikesDbStorage;
+import ru.practicum.filmorate.storage.likes.LikesStorage;
+import ru.practicum.filmorate.storage.mpa.InMemoryMpaStorage;
+import ru.practicum.filmorate.storage.mpa.MpaDbStorage;
+import ru.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.practicum.filmorate.storage.user.UserDbStorage;
 import ru.practicum.filmorate.storage.user.UserStorage;
 
@@ -32,26 +40,26 @@ public class TestBeans {
 
     @Bean
     @Primary
-    public FriendshipDao friendshipDao() {
-        return new InMemoryFriendshipDao();
+    public FriendshipStorage friendshipDao() {
+        return new InMemoryFriendshipStorage();
     }
 
     @Bean
     @Primary
-    public LikesDao likesDao() {
-        return new InMemoryLikesDao();
+    public LikesStorage likesDao() {
+        return new InMemoryLikesStorage();
     }
 
     @Bean
     @Primary
-    public MpaDao mpaDao() {
-        return new InMemoryMpaDao();
+    public MpaStorage mpaDao() {
+        return new InMemoryMpaStorage();
     }
 
     @Bean
     @Primary
-    public GenreDao genreDao() {
-        return new InMemoryGenreDao();
+    public GenreStorage genreDao() {
+        return new InMemoryGenreStorage();
     }
 
     @Bean

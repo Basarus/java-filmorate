@@ -5,9 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.filmorate.storage.genre.GenreDao;
-import ru.practicum.filmorate.dao.LikesDao;
-import ru.practicum.filmorate.dao.MpaDao;
+import ru.practicum.filmorate.storage.genre.GenreStorage;
+import ru.practicum.filmorate.storage.likes.LikesDbStorage;
+import ru.practicum.filmorate.storage.mpa.MpaDbStorage;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.storage.film.FilmStorage;
 import ru.practicum.filmorate.storage.user.UserStorage;
@@ -24,10 +24,10 @@ public class FilmService {
     private final FilmStorage films;
     private final UserStorage users;
 
-    private LikesDao likes;
+    private LikesDbStorage likes;
     private PopularityService popularity;
-    private MpaDao mpaDao;
-    private GenreDao genreDao;
+    private MpaDbStorage mpaDao;
+    private GenreStorage genreDao;
 
     public FilmService(FilmStorage films, UserStorage users) {
         this.films = films;
@@ -35,7 +35,7 @@ public class FilmService {
     }
 
     @Autowired(required = false)
-    public void setLikes(@Nullable LikesDao likes) {
+    public void setLikes(@Nullable LikesDbStorage likes) {
         this.likes = likes;
     }
 
@@ -45,12 +45,12 @@ public class FilmService {
     }
 
     @Autowired(required = false)
-    public void setMpaDao(@Nullable MpaDao mpaDao) {
+    public void setMpaDao(@Nullable MpaDbStorage mpaDao) {
         this.mpaDao = mpaDao;
     }
 
     @Autowired(required = false)
-    public void setGenreDao(@Nullable GenreDao genreDao) {
+    public void setGenreDao(@Nullable GenreStorage genreDao) {
         this.genreDao = genreDao;
     }
 

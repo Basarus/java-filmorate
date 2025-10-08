@@ -7,6 +7,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.filmorate.handler.ErrorHandler;
 import ru.practicum.filmorate.service.UserService;
+import ru.practicum.filmorate.storage.friendship.InMemoryFriendshipStorage;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -19,8 +20,9 @@ public class UserControllerStandaloneTest {
 
     @BeforeEach
     void setup() {
-        var storage = new InMemoryUserStorage();
-        var service = new UserService(storage);
+        var userStorage = new InMemoryUserStorage();
+        var friendStorage = new InMemoryFriendshipStorage();
+        var service = new UserService(userStorage, friendStorage);
         var controller = new UserController(service);
         var friendshipController = new FriendshipController(service);
         mvc = MockMvcBuilders.standaloneSetup(controller, friendshipController).setControllerAdvice(new ErrorHandler()).build();
