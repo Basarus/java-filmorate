@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.storage.friendship.InMemoryFriendshipStorage;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
