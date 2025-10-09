@@ -1,9 +1,9 @@
 package ru.practicum.filmorate.service;
 
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.practicum.filmorate.exception.NotFoundException;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.storage.friendship.FriendshipStorage;
 import ru.practicum.filmorate.storage.friendship.InMemoryFriendshipStorage;
@@ -24,18 +24,18 @@ public class UserService {
         this.friendships = friendships;
     }
 
-    public User create(User u) throws BadRequestException {
+    public User create(User u) {
         if (u == null) {
-            throw new BadRequestException("User data must not be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User data must not be null");
         }
         if (u.getLogin() == null || u.getLogin().isBlank()) {
-            throw new BadRequestException("Login cannot be empty");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Login cannot be empty");
         }
         if (u.getEmail() == null || u.getEmail().isBlank() || !u.getEmail().contains("@")) {
-            throw new BadRequestException("Invalid email format");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email format");
         }
         if (u.getBirthday() != null && u.getBirthday().isAfter(java.time.LocalDate.now())) {
-            throw new BadRequestException("Birthday cannot be in the future");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Birthday cannot be in the future");
         }
         if (u.getName() == null || u.getName().isBlank()) {
             u.setName(u.getLogin());
@@ -47,23 +47,23 @@ public class UserService {
             }
             return saved;
         } catch (Exception e) {
-            throw new InternalError("Failed to create user", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create user", e);
         }
     }
 
-    public User update(User u) throws BadRequestException {
+    public User update(User u) {
         if (u == null || u.getId() == null || u.getId() <= 0) {
-            throw new BadRequestException("User ID must be positive for update");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID must be positive for update");
         }
         exists(u.getId());
         if (u.getLogin() == null || u.getLogin().isBlank()) {
-            throw new BadRequestException("Login cannot be empty");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Login cannot be empty");
         }
         if (u.getEmail() == null || u.getEmail().isBlank() || !u.getEmail().contains("@")) {
-            throw new BadRequestException("Invalid email format");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email format");
         }
         if (u.getBirthday() != null && u.getBirthday().isAfter(java.time.LocalDate.now())) {
-            throw new BadRequestException("Birthday cannot be in the future");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Birthday cannot be in the future");
         }
         if (u.getName() == null || u.getName().isBlank()) {
             u.setName(u.getLogin());
@@ -75,89 +75,101 @@ public class UserService {
             }
             return updated;
         } catch (Exception e) {
-            throw new InternalError("Failed to update user", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update user", e);
         }
     }
 
     public List<User> findAll() {
-        List<User> all = users.findAll();
-        if (all == null || all.isEmpty()) {
-            throw new NotFoundException("No users found");
+        try {
+            List<User> all = users.findAll();
+            if (all == null || all.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No users found");
+            }
+            return all;
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load users", e);
         }
-        return all;
     }
 
-    public Optional<User> findById(int id) throws BadRequestException {
+    public Optional<User> findById(int id) {
         if (id <= 0) {
-            throw new BadRequestException("User ID must be positive");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID must be positive");
         }
-        var user = users.findById(id);
-        if (user.isEmpty()) {
-            throw new NotFoundException("User not found: id=" + id);
+        try {
+            var user = users.findById(id);
+            if (user.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: id=" + id);
+            }
+            return user;
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load user", e);
         }
-        return user;
     }
 
-    public void addFriend(int id, int friendId) throws BadRequestException {
+    public void addFriend(int id, int friendId) {
         if (id <= 0 || friendId <= 0) {
-            throw new BadRequestException("User IDs must be positive");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User IDs must be positive");
         }
         if (id == friendId) {
-            throw new BadRequestException("Cannot add yourself as a friend");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add yourself as a friend");
         }
         exists(id);
         exists(friendId);
         try {
             friendships.add(id, friendId);
         } catch (Exception e) {
-            throw new InternalError("Failed to add friend", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to add friend", e);
         }
     }
 
-    public void removeFriend(int id, int friendId) throws BadRequestException {
+    public void removeFriend(int id, int friendId) {
         if (id <= 0 || friendId <= 0) {
-            throw new BadRequestException("User IDs must be positive");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User IDs must be positive");
         }
         exists(id);
         exists(friendId);
         try {
             friendships.remove(id, friendId);
         } catch (Exception e) {
-            throw new InternalError("Failed to remove friend", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to remove friend", e);
         }
     }
 
-    public List<User> friends(int id) throws BadRequestException {
+    public List<User> friends(int id) {
         if (id <= 0) {
-            throw new BadRequestException("User ID must be positive");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID must be positive");
         }
         exists(id);
         try {
             return friendships.friendsOf(id);
         } catch (Exception e) {
-            throw new InternalError("Failed to load friends", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load friends", e);
         }
     }
 
-    public List<User> common(int id, int otherId) throws BadRequestException {
+    public List<User> common(int id, int otherId) {
         if (id <= 0 || otherId <= 0) {
-            throw new BadRequestException("User IDs must be positive");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User IDs must be positive");
         }
         exists(id);
         exists(otherId);
         try {
             return friendships.commonFriends(id, otherId);
         } catch (Exception e) {
-            throw new InternalError("Failed to load common friends", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load common friends", e);
         }
     }
 
-    public boolean exists(int id) throws BadRequestException {
+    public boolean exists(int id) {
         if (id <= 0) {
-            throw new BadRequestException("User ID must be positive");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID must be positive");
         }
         if (!users.exists(id)) {
-            throw new NotFoundException("User not found: id=" + id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: id=" + id);
         }
         return true;
     }

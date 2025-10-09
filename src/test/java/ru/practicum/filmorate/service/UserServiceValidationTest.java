@@ -3,6 +3,8 @@ package ru.practicum.filmorate.service;
 import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.storage.friendship.InMemoryFriendshipStorage;
@@ -50,6 +52,8 @@ public class UserServiceValidationTest {
     void updateUnknownIdThrows404() {
         User u = validUser();
         u.setId(777);
-        assertThrows(NotFoundException.class, () -> service.update(u));
+        ResponseStatusException ex =
+                assertThrows(ResponseStatusException.class, () -> service.update(u));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
     }
 }

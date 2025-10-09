@@ -1,86 +1,103 @@
 package ru.practicum.filmorate.dto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import ru.practicum.filmorate.model.Mpa;
+import ru.practicum.filmorate.validation.DateNotBefore;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class FilmRequestAdapter {
 
     @NotBlank
-    private final String name;
+    private String name;
 
     @Size(max = 200)
-    private final String description;
+    private String description;
 
     @NotNull
-    private final LocalDate releaseDate;
+    @DateNotBefore("1895-12-28")
+    private LocalDate releaseDate;
 
     @Positive
-    private final int duration;
+    private int duration;
 
-    @NotNull
-    private final Integer mpaId;
+    private Integer mpaId;
 
-    private final Set<Integer> genreIds;
+    private Set<Integer> genreIds = new HashSet<>();
 
-    @JsonCreator
-    public FilmRequestAdapter(
-            @JsonProperty("name") String name,
-            @JsonProperty("description") String description,
-            @JsonProperty("releaseDate") LocalDate releaseDate,
-            @JsonProperty("duration") int duration,
-            @JsonProperty("mpa") Mpa mpa,
-            @JsonProperty("genres") Set<GenreDto> genres
-    ) {
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.mpaId = mpa != null ? mpa.getId() : null;
-        this.genreIds = genres != null
-                ? genres.stream().map(GenreDto::getId).collect(Collectors.toSet())
-                : java.util.Collections.emptySet();
+    public FilmRequestAdapter() {
     }
 
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
+    public void setReleaseDate(LocalDate releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
     public int getDuration() {
         return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 
     public Integer getMpaId() {
         return mpaId;
     }
 
+    public void setMpa(Mpa mpa) {
+        this.mpaId = mpa != null ? mpa.getId() : null;
+    }
+
     public Set<Integer> getGenreIds() {
         return genreIds;
     }
 
-    public static class GenreDto {
-        private final Integer id;
+    public void setGenres(Set<GenreDto> genres) {
+        this.genreIds = genres != null
+                ? genres.stream().map(GenreDto::getId).collect(Collectors.toSet())
+                : Collections.emptySet();
+    }
 
-        @JsonCreator
-        public GenreDto(@JsonProperty("id") Integer id) {
+    public static class GenreDto {
+        private Integer id;
+
+        public GenreDto() {
+        }
+
+        public GenreDto(Integer id) {
             this.id = id;
         }
 
         public Integer getId() {
             return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
         }
     }
 }

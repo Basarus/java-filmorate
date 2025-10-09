@@ -21,8 +21,11 @@ public class FilmServiceValidationTest {
     void setUp() {
         var filmStorage = new InMemoryFilmStorage();
         var userStorage = new InMemoryUserStorage();
-        var filmQueryService = new InMemoryFilmQueryService(filmStorage, new InMemoryMpaStorage(), new InMemoryGenreStorage(), new InMemoryLikesStorage());
-        service = new FilmService(filmStorage, userStorage, filmQueryService);
+        var mpaStorage = new InMemoryMpaStorage();
+        var genreStorage = new InMemoryGenreStorage();
+        var likesStorage = new InMemoryLikesStorage();
+        var filmQueryService = new InMemoryFilmQueryService(filmStorage, mpaStorage, genreStorage, likesStorage);
+        service = new FilmService(filmStorage, userStorage, filmQueryService, likesStorage, mpaStorage, genreStorage);
     }
 
     private Film validFilm() {

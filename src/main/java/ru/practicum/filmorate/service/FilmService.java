@@ -2,64 +2,36 @@ package ru.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.storage.film.FilmStorage;
 import ru.practicum.filmorate.storage.genre.GenreStorage;
-import ru.practicum.filmorate.storage.genre.InMemoryGenreStorage;
 import ru.practicum.filmorate.storage.likes.LikesStorage;
 import ru.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.practicum.filmorate.storage.user.UserStorage;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 @Service
 public class FilmService {
 
-    private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, 12, 28);
-
     private final FilmStorage films;
     private final UserStorage users;
     private final FilmQueryService filmQueryService;
-    private LikesStorage likes;
-    private PopularityService popularity;
-    private MpaStorage mpaDao;
-    private GenreStorage genreDao;
+    private final LikesStorage likes;
+    private final MpaStorage mpaDao;
+    private final GenreStorage genreDao;
 
-    public FilmService(FilmStorage films, UserStorage users, FilmQueryService filmQueryService) {
+    @Autowired
+    public FilmService(FilmStorage films, UserStorage users, FilmQueryService filmQueryService, LikesStorage likes, MpaStorage mpaDao, GenreStorage genreDao) {
         this.films = films;
         this.users = users;
         this.filmQueryService = filmQueryService;
-    }
-
-    @Autowired(required = false)
-    public void setLikes(@Nullable LikesStorage likes) {
-        if (likes != null) {
-            this.likes = likes;
-        }
-    }
-
-    @Autowired(required = false)
-    public void setPopularity(@Nullable PopularityService popularity) {
-        if (popularity != null) {
-            this.popularity = popularity;
-        }
-    }
-
-    @Autowired(required = false)
-    public void setMpaDao(@Nullable MpaStorage mpaDao) {
-        if (mpaDao != null) {
-            this.mpaDao = mpaDao;
-        }
-    }
-
-    @Autowired(required = false)
-    public void setGenreDao(@Nullable GenreStorage genreDao) {
-        this.genreDao = genreDao != null ? genreDao : new InMemoryGenreStorage();
+        this.likes = likes;
+        this.mpaDao = mpaDao;
+        this.genreDao = genreDao;
     }
 
     public Film create(Film film) {
@@ -75,6 +47,7 @@ public class FilmService {
         validateRefs(film);
         Film saved = films.save(film);
         FilmQueryService.FullFilm full = filmQueryService.load(saved.getId());
+
         if (full == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Film not found after creation");
         }
@@ -176,24 +149,26 @@ public class FilmService {
     }
 
     private void validateRefs(Film f) {
-        if (f.getReleaseDate() != null && f.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Release date cannot be before December 28, 1895");
-        }
         Integer mpaId = f.getMpaId();
+
         if (mpaId != null) {
             if (mpaDao == null) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "MPA storage not initialized");
             }
-            if (!mpaDao.exists(mpaId)) {
+            boolean exists = mpaDao.exists(mpaId);
+            if (!exists) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + mpaId + " not found");
             }
         }
+
         Set<Integer> genreIds = f.getGenreIds();
+
         if (genreIds != null && !genreIds.isEmpty()) {
             if (genreDao == null) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Genre storage not initialized");
             }
-            if (!genreDao.allExist(genreIds)) {
+            boolean allExist = genreDao.allExist(genreIds);
+            if (!allExist) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more genres not found");
             }
         }

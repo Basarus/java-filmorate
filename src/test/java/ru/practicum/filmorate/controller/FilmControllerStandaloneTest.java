@@ -51,10 +51,7 @@ public class FilmControllerStandaloneTest {
         this.genreStorage = new InMemoryGenreStorage();
         this.likeStorage = new InMemoryLikesStorage();
         this.queryService = new InMemoryFilmQueryService(filmStorage, mpaStorage, genreStorage, likeStorage);
-        this.filmService = new FilmService(filmStorage, userStorage, queryService);
-        filmService.setMpaDao(mpaStorage);
-        filmService.setGenreDao(genreStorage);
-        filmService.setLikes(likeStorage);
+        this.filmService = new FilmService(filmStorage, userStorage, queryService, likeStorage, mpaStorage, genreStorage);
         this.filmController = new FilmController(filmService, queryService);
         mvc = MockMvcBuilders.standaloneSetup(filmController)
                 .setControllerAdvice(new ErrorHandler())

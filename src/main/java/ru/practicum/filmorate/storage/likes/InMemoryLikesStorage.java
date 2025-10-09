@@ -13,7 +13,6 @@ public class InMemoryLikesStorage implements LikesStorage {
     @Override
     public void like(int filmId, int userId) {
         likes.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
-        System.out.println(">>> DEBUG like() in storage@" + System.identityHashCode(this) + " => " + likes);
     }
 
     @Override
@@ -35,7 +34,6 @@ public class InMemoryLikesStorage implements LikesStorage {
 
     @Override
     public Set<Integer> getLikes(int filmId) {
-        System.out.println(">>> DEBUG getLikes() in storage@" + System.identityHashCode(this) + " => " + likes);
         return likes.getOrDefault(filmId, new HashSet<>());
     }
 }

@@ -24,8 +24,6 @@ public class MpaController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No MPA ratings found");
             }
             return mpaList;
-        } catch (ResponseStatusException e) {
-            throw e;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load MPA ratings", e);
         }
@@ -38,7 +36,9 @@ public class MpaController {
         }
 
         try {
-            return mpaStorage.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + id + " not found"));
+            return mpaStorage.findById(id)
+                    .orElseThrow(() ->
+                            new ResponseStatusException(HttpStatus.NOT_FOUND, "MPA with id=" + id + " not found"));
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {

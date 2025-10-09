@@ -5,7 +5,6 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.service.UserService;
 
@@ -18,13 +17,14 @@ public class FriendshipController {
     private final UserService service;
 
     @PutMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
     public void add(@PathVariable int id, @PathVariable int friendId) throws BadRequestException {
         validateIds(id, friendId);
         if (!service.exists(id)) {
-            throw new NotFoundException("User with id=" + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + id + " not found");
         }
         if (!service.exists(friendId)) {
-            throw new NotFoundException("User with id=" + friendId + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + friendId + " not found");
         }
         if (id == friendId) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add yourself as a friend");
@@ -33,13 +33,14 @@ public class FriendshipController {
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
     public void remove(@PathVariable int id, @PathVariable int friendId) throws BadRequestException {
         validateIds(id, friendId);
         if (!service.exists(id)) {
-            throw new NotFoundException("User with id=" + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + id + " not found");
         }
         if (!service.exists(friendId)) {
-            throw new NotFoundException("User with id=" + friendId + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + friendId + " not found");
         }
         service.removeFriend(id, friendId);
     }
@@ -48,7 +49,7 @@ public class FriendshipController {
     public List<User> friends(@PathVariable int id) throws BadRequestException {
         validateId(id);
         if (!service.exists(id)) {
-            throw new NotFoundException("User with id=" + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + id + " not found");
         }
         return service.friends(id);
     }
@@ -57,10 +58,10 @@ public class FriendshipController {
     public List<User> common(@PathVariable int id, @PathVariable int otherId) throws BadRequestException {
         validateIds(id, otherId);
         if (!service.exists(id)) {
-            throw new NotFoundException("User with id=" + id + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + id + " not found");
         }
         if (!service.exists(otherId)) {
-            throw new NotFoundException("User with id=" + otherId + " not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + otherId + " not found");
         }
         return service.common(id, otherId);
     }

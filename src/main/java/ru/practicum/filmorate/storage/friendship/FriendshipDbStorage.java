@@ -1,6 +1,5 @@
 package ru.practicum.filmorate.storage.friendship;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,7 +10,6 @@ import java.util.List;
 
 @Repository
 @Profile("!test")
-@RequiredArgsConstructor
 public class FriendshipDbStorage implements FriendshipStorage {
     private final JdbcTemplate jdbc;
     private static final RowMapper<User> M = (rs, n) -> {
@@ -23,6 +21,10 @@ public class FriendshipDbStorage implements FriendshipStorage {
         u.setBirthday(rs.getDate("birthday").toLocalDate());
         return u;
     };
+
+    public FriendshipDbStorage(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
 
     public void add(int userId, int friendId) {
         jdbc.update("MERGE INTO friendships(user_id,friend_id) KEY(user_id,friend_id) VALUES (?,?)", userId, friendId);
