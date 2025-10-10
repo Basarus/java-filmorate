@@ -68,9 +68,7 @@ public class DbFilmStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         jdbc.update("""
-                        UPDATE films 
-                        SET name=?, description=?, release_date=?, duration=?, mpa_id=? 
-                        WHERE id=?
+                        UPDATE films SET name=?, description=?, release_date=?, duration=?, mpa_id=? WHERE id=?
                         """,
                 film.getName(),
                 film.getDescription(),
