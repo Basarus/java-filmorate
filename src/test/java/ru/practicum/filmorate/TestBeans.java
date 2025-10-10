@@ -4,7 +4,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import ru.practicum.filmorate.service.PopularityService;
 import ru.practicum.filmorate.storage.film.FilmStorage;
 import ru.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.practicum.filmorate.storage.friendship.FriendshipStorage;
@@ -56,12 +55,6 @@ public class TestBeans {
     @Primary
     public GenreStorage genreStorage() {
         return new InMemoryGenreStorage();
-    }
-
-    @Bean
-    @Primary
-    public PopularityService popularityService() {
-        return new PopularityService(null);
     }
 }
 

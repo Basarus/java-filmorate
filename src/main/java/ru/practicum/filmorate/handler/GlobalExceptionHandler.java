@@ -1,12 +1,11 @@
-package ru.practicum.filmorate.controller;
+package ru.practicum.filmorate.handler;
 
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.exception.NotFoundException;
 import ru.practicum.filmorate.exception.ValidationException;
@@ -14,7 +13,7 @@ import ru.practicum.filmorate.exception.ValidationException;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -27,7 +26,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Object> handleRse(ResponseStatusException ex) {
+    public ResponseEntity<Map<String, String>>  handleRse(ResponseStatusException ex) {
         return new ResponseEntity<>(
                 Map.of("error", ex.getReason() != null ? ex.getReason() : ex.getStatusCode().toString()),
                 ex.getStatusCode()
@@ -35,17 +34,23 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public NotFoundException handleNotFound(NotFoundException ex) {
-        return new NotFoundException(ex.getMessage());
+    public ResponseEntity<String> handleNotFound(NotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
     }
 
     @ExceptionHandler(ValidationException.class)
-    public BadRequestException handleValidation(ValidationException ex) {
-        return new BadRequestException(ex.getMessage());
+    public ResponseEntity<String> handleValidation(ValidationException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
-    public InternalError handleGeneral(Exception ex) {
-        return new InternalError(ex.getMessage());
+    public ResponseEntity<String> handleGeneral(Exception ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Unexpected error: " + ex.getMessage());
     }
 }

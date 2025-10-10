@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class FilmRequestAdapter {
+public class FilmCreateRequest {
 
     @NotBlank
     private String name;
@@ -29,7 +29,7 @@ public class FilmRequestAdapter {
 
     private Set<Integer> genreIds = new HashSet<>();
 
-    public FilmRequestAdapter() {
+    public FilmCreateRequest() {
     }
 
     public String getName() {

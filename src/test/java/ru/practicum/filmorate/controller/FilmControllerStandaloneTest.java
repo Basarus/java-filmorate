@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.filmorate.handler.ErrorHandler;
+import ru.practicum.filmorate.handler.GlobalExceptionHandler;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.service.FilmService;
 import ru.practicum.filmorate.service.InMemoryFilmQueryService;
@@ -54,7 +54,7 @@ public class FilmControllerStandaloneTest {
         this.filmService = new FilmService(filmStorage, userStorage, queryService, likeStorage, mpaStorage, genreStorage);
         this.filmController = new FilmController(filmService, queryService);
         mvc = MockMvcBuilders.standaloneSetup(filmController)
-                .setControllerAdvice(new ErrorHandler())
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
 

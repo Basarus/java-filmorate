@@ -2,6 +2,7 @@ package ru.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import ru.practicum.filmorate.service.UserService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -22,13 +24,10 @@ public class UserController {
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User data must not be null");
         }
-        try {
-            return service.create(user);
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create user", e);
-        }
+        log.info("Creating user: email={}, login={}, name={}", user.getEmail(), user.getLogin(), user.getName());
+        User created = service.create(user);
+        log.info("User created successfully with id={}", created.getId());
+        return created;
     }
 
     @PutMapping
@@ -36,31 +35,22 @@ public class UserController {
         if (user == null || user.getId() == null || user.getId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID must be positive for update");
         }
+        log.info("Updating user with id={}", user.getId());
         if (!service.exists(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + user.getId() + " not found");
         }
-        try {
-            return service.update(user);
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update user", e);
-        }
+        User updated = service.update(user);
+        log.info("User updated successfully: id={}, email={}, login={}", updated.getId(), updated.getEmail(), updated.getLogin());
+        return updated;
     }
 
     @GetMapping
     public List<User> findAll() {
-        try {
-            List<User> users = service.findAll();
-            if (users == null || users.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No users found");
-            }
-            return users;
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load users", e);
+        List<User> users = service.findAll();
+        if (users == null || users.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No users found");
         }
+        return users;
     }
 
     @GetMapping("/{id}")
@@ -68,13 +58,6 @@ public class UserController {
         if (id == null || id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID must be positive");
         }
-        try {
-            return service.findById(id)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + id + " not found"));
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load user by id=" + id, e);
-        }
+        return service.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + id + " not found"));
     }
 }

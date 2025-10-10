@@ -32,14 +32,28 @@ public class FilmQueryService {
     }
 
     public FullFilm load(int filmId) {
-        Film film = jdbc.query("SELECT * FROM films WHERE id=?", F, filmId).stream().findFirst().orElse(null);
+        var filmData = jdbc.query("""
+                SELECT f.*, m.name AS mpa_name
+                FROM films f
+                JOIN mpa m ON f.mpa_id = m.id
+                WHERE f.id = ?
+                """, (rs, n) -> {
+            Film f = new Film();
+            f.setId(rs.getInt("id"));
+            f.setName(rs.getString("name"));
+            f.setDescription(rs.getString("description"));
+            f.setReleaseDate(rs.getDate("release_date").toLocalDate());
+            f.setDuration(rs.getInt("duration"));
+            f.setMpaId(rs.getInt("mpa_id"));
+            Mpa mpa = new Mpa(f.getMpaId(), rs.getString("mpa_name"));
+            return new Object[]{f, mpa};
+        }, filmId).stream().findFirst().orElse(null);
 
-        if (film == null) return null;
+        if (filmData == null) return null;
 
-        Mpa mpa = jdbc.query("SELECT * FROM mpa WHERE id=?",
-                (rs, n) -> new Mpa(rs.getInt("id"), rs.getString("name")),
-                film.getMpaId()
-        ).stream().findFirst().orElse(null);
+        Film film = (Film) filmData[0];
+        Mpa mpa = (Mpa) filmData[1];
+
         List<Genre> genres = jdbc.query("""
                     SELECT g.* FROM film_genre fg
                     JOIN genres g ON g.id = fg.genre_id
@@ -50,10 +64,10 @@ public class FilmQueryService {
         Set<Integer> likes = new HashSet<>(jdbc.query("""
                     SELECT user_id FROM film_likes WHERE film_id = ?
                 """, (rs, n) -> rs.getInt("user_id"), filmId));
+
         film.getLikes().addAll(likes);
         return new FullFilm(film, mpa, genres);
     }
-
 
     public List<FullFilm> loadAll() {
         List<Film> films = jdbc.query("SELECT * FROM films ORDER BY id", F);
@@ -97,5 +111,15 @@ public class FilmQueryService {
         }
 
         return res;
+    }
+
+    public List<Film> top(int limit) {
+        return jdbc.query("""
+                    SELECT f.* FROM films f
+                    LEFT JOIN film_likes fl ON fl.film_id = f.id
+                    GROUP BY f.id
+                    ORDER BY COUNT(fl.user_id) DESC, f.id ASC
+                    FETCH FIRST ? ROWS ONLY
+                """, F, limit);
     }
 }

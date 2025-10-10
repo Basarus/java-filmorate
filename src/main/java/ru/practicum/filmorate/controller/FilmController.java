@@ -2,6 +2,7 @@ package ru.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,16 +17,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
-@ResponseBody
 public class FilmController {
     private final FilmService service;
     private final FilmQueryService query;
 
     @PostMapping
-    public FilmResponse create(@RequestBody @Valid FilmRequestAdapter r) {
+    public FilmResponse create(@RequestBody @Valid FilmCreateRequest r) {
+        log.info("Creating film: name={}, releaseDate={}, duration={}", r.getName(), r.getReleaseDate(), r.getDuration());
         Film f = new Film();
         f.setName(r.getName());
         f.setDescription(r.getDescription());
@@ -34,11 +36,13 @@ public class FilmController {
         f.setMpaId(r.getMpaId());
         f.setGenreIds(r.getGenreIds());
         Film created = service.create(f);
+        log.info("Film created with id={}", created.getId());
         return map(created.getId());
     }
 
     @PutMapping
-    public FilmResponse update(@RequestBody @Valid FilmUpdateRequestAdapter r) {
+    public FilmResponse update(@RequestBody @Valid FilmUpdateRequest r) {
+        log.info("Updating film id={}", r.getId());
         if (r.getId() == null || r.getId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film id must be positive");
         }
@@ -52,12 +56,15 @@ public class FilmController {
         f.setMpaId(r.getMpaId());
         f.setGenreIds(r.getGenreIds());
         Film updated = service.update(f);
+        log.info("Film updated: id={}, name={}", updated.getId(), updated.getName());
         return map(updated.getId());
     }
 
     @GetMapping
     public List<FilmResponse> all() {
-        return service.findAll().stream().map(this::toResponse).collect(Collectors.toList());
+        return service.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/popular")
@@ -65,7 +72,9 @@ public class FilmController {
         if (count <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Count must be positive");
         }
-        return service.top(count).stream().map(f -> map(f.getId())).collect(Collectors.toList());
+        return service.top(count).stream()
+                .map(f -> map(f.getId()))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id:\\d+}")

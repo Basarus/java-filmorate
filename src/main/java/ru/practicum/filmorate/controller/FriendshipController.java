@@ -1,6 +1,7 @@
 package ru.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import ru.practicum.filmorate.service.UserService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -19,6 +21,7 @@ public class FriendshipController {
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void add(@PathVariable int id, @PathVariable int friendId) throws BadRequestException {
+        log.info("User {} added user {} as a friend", id, friendId);
         validateIds(id, friendId);
         if (!service.exists(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + id + " not found");
@@ -35,6 +38,7 @@ public class FriendshipController {
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void remove(@PathVariable int id, @PathVariable int friendId) throws BadRequestException {
+        log.info("User {} removed user {} from friends", id, friendId);
         validateIds(id, friendId);
         if (!service.exists(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id=" + id + " not found");
