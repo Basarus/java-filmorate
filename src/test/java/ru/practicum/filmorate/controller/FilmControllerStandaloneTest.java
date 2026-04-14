@@ -2,13 +2,21 @@ package ru.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.filmorate.handler.ErrorHandler;
+import ru.practicum.filmorate.handler.GlobalExceptionHandler;
 import ru.practicum.filmorate.model.User;
 import ru.practicum.filmorate.service.FilmService;
+import ru.practicum.filmorate.service.InMemoryFilmQueryService;
 import ru.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.practicum.filmorate.storage.genre.InMemoryGenreStorage;
+import ru.practicum.filmorate.storage.likes.InMemoryLikesStorage;
+import ru.practicum.filmorate.storage.likes.LikesStorage;
+import ru.practicum.filmorate.storage.mpa.InMemoryMpaStorage;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -19,18 +27,35 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@SpringBootTest(classes = ru.yandex.practicum.filmorate.FilmorateApplication.class)
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class FilmControllerStandaloneTest {
 
     private MockMvc mvc;
     private InMemoryUserStorage userStorage;
+    private InMemoryFilmStorage filmStorage;
+    private InMemoryMpaStorage mpaStorage;
+    private InMemoryGenreStorage genreStorage;
+    private InMemoryFilmQueryService queryService;
+    private FilmService filmService;
+    private FilmController filmController;
+    private LikesStorage likeStorage;
+
 
     @BeforeEach
     void setup() {
-        var filmStorage = new InMemoryFilmStorage();
-        userStorage = new InMemoryUserStorage();
-        var service = new FilmService(filmStorage, userStorage);
-        var controller = new FilmController(service);
-        mvc = MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new ErrorHandler()).build();
+        this.filmStorage = new InMemoryFilmStorage();
+        this.userStorage = new InMemoryUserStorage();
+        this.mpaStorage = new InMemoryMpaStorage();
+        this.genreStorage = new InMemoryGenreStorage();
+        this.likeStorage = new InMemoryLikesStorage();
+        this.queryService = new InMemoryFilmQueryService(filmStorage, mpaStorage, genreStorage, likeStorage);
+        this.filmService = new FilmService(filmStorage, userStorage, queryService, likeStorage, mpaStorage, genreStorage);
+        this.filmController = new FilmController(filmService, queryService);
+        mvc = MockMvcBuilders.standaloneSetup(filmController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
     }
 
     @Test
@@ -40,13 +65,13 @@ public class FilmControllerStandaloneTest {
 
     @Test
     void negativeDurationReturns400() throws Exception {
-        String body = "{" + "\"name\":\"Test\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2000-01-01\"," + "\"duration\":-1" + "}";
+        String body = "{" + "\"name\":\"Test\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2000-01-01\"," + "\"duration\":-1," + "\"mpaId\":1," + "\"genreIds\":[]" + "}";
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isBadRequest());
     }
 
     @Test
     void createThenGetListIs200() throws Exception {
-        String body = "{" + "\"name\":\"Ok\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2000-01-01\"," + "\"duration\":90" + "}";
+        String body = "{" + "\"name\":\"Ok\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2000-01-01\"," + "\"duration\":90," + "\"mpaId\":1," + "\"genreIds\":[]" + "}";
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isOk()).andExpect(jsonPath("$.id").exists());
 
         mvc.perform(get("/films")).andExpect(status().isOk()).andExpect(jsonPath("$[0].name").value("Ok"));
@@ -54,13 +79,13 @@ public class FilmControllerStandaloneTest {
 
     @Test
     void putUnknownIdReturns404() throws Exception {
-        String body = "{" + "\"id\":999," + "\"name\":\"X\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2000-01-01\"," + "\"duration\":90" + "}";
+        String body = "{" + "\"id\":999," + "\"name\":\"X\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2000-01-01\"," + "\"duration\":90," + "\"mpaId\":1," + "\"genreIds\":[]" + "}";
         mvc.perform(put("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isNotFound());
     }
 
     @Test
     void getByIdReturns200() throws Exception {
-        String body = "{" + "\"name\":\"Matrix\"," + "\"description\":\"Cyberpunk\"," + "\"releaseDate\":\"1999-03-31\"," + "\"duration\":136" + "}";
+        String body = "{" + "\"name\":\"Matrix\"," + "\"description\":\"Cyberpunk\"," + "\"releaseDate\":\"1999-03-31\"," + "\"duration\":136," + "\"mpaId\":1," + "\"genreIds\":[]" + "}";
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isOk());
         mvc.perform(get("/films/1")).andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Matrix"));
     }
@@ -72,7 +97,7 @@ public class FilmControllerStandaloneTest {
 
     @Test
     void likesEmptyOnNewFilm() throws Exception {
-        String body = "{" + "\"name\":\"New\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":120" + "}";
+        String body = "{" + "\"name\":\"New\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":120," + "\"mpaId\":1," + "\"genreIds\":[]" + "}";
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isOk());
         mvc.perform(get("/films/1")).andExpect(status().isOk()).andExpect(jsonPath("$.likes.length()", is(0)));
     }
@@ -86,8 +111,8 @@ public class FilmControllerStandaloneTest {
         u.setBirthday(LocalDate.of(1990, 1, 1));
         userStorage.save(u);
 
-        String f1 = "{" + "\"name\":\"FilmA\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
-        String f2 = "{" + "\"name\":\"FilmB\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2002-02-02\"," + "\"duration\":110" + "}";
+        String f1 = "{" + "\"name\":\"FilmA\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100," + "\"mpaId\":1," + "\"genreIds\":[]" + "}";
+        String f2 = "{" + "\"name\":\"FilmB\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2002-02-02\"," + "\"duration\":110," + "\"mpaId\":1," + "\"genreIds\":[]" + "}";
 
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f1)).andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1));
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f2)).andExpect(status().isOk()).andExpect(jsonPath("$.id").value(2));
@@ -106,7 +131,7 @@ public class FilmControllerStandaloneTest {
         u.setBirthday(LocalDate.of(1990, 1, 1));
         userStorage.save(u);
 
-        String f = "{" + "\"name\":\"F\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
+        String f = "{" + "\"name\":\"F\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100," + "\"mpaId\":1," + "\"genreIds\":[]" + "}";
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f)).andExpect(status().isOk());
 
         mvc.perform(put("/films/1/like/1")).andExpect(status().isOk());
@@ -124,7 +149,7 @@ public class FilmControllerStandaloneTest {
         user.setBirthday(java.time.LocalDate.of(1990, 1, 1));
         userStorage.save(user);
 
-        String f = "{" + "\"name\":\"F2\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
+        String f = "{" + "\"name\":\"F2\"," + "\"description\":\"D\"," + "\"duration\":100," + "\"mpaId\":1," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f)).andExpect(status().isOk());
 
         mvc.perform(delete("/films/1/like/" + user.getId())).andExpect(status().isOk());
@@ -134,7 +159,7 @@ public class FilmControllerStandaloneTest {
 
     @Test
     void likeUnknownUserReturns404() throws Exception {
-        String f = "{" + "\"name\":\"F3\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
+        String f = "{" + "\"name\":\"F3\"," + "\"description\":\"D\"," + "\"duration\":100," + "\"mpaId\":1," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f)).andExpect(status().isOk());
         mvc.perform(put("/films/1/like/999")).andExpect(status().isNotFound());
     }
@@ -160,7 +185,7 @@ public class FilmControllerStandaloneTest {
         userStorage.save(u);
 
         IntStream.rangeClosed(1, 12).forEach(i -> {
-            String f = "{" + "\"name\":\"F" + i + "\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
+            String f = "{" + "\"name\":\"F" + i + "\"," + "\"description\":\"D\"," + "\"duration\":100," + "\"duration\":100," + "\"mpaId\":1," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
             try {
                 mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f)).andExpect(status().isOk());
             } catch (Exception e) {
@@ -176,7 +201,7 @@ public class FilmControllerStandaloneTest {
 
     @Test
     void popularCountMoreThanExistingReturnsAll() throws Exception {
-        String f = "{" + "\"name\":\"OnlyOne\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
+        String f = "{" + "\"name\":\"OnlyOne\"," + "\"description\":\"D\"," + "\"duration\":100," + "\"mpaId\":1," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f)).andExpect(status().isOk());
 
         mvc.perform(get("/films/popular?count=100")).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1)));
@@ -191,8 +216,8 @@ public class FilmControllerStandaloneTest {
         u.setBirthday(LocalDate.of(1990, 1, 1));
         userStorage.save(u);
 
-        String f1 = "{" + "\"name\":\"A\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
-        String f2 = "{" + "\"name\":\"B\"," + "\"description\":\"D\"," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
+        String f1 = "{" + "\"name\":\"A\"," + "\"description\":\"D\"," + "\"duration\":100," + "\"mpaId\":1," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
+        String f2 = "{" + "\"name\":\"B\"," + "\"description\":\"D\"," + "\"duration\":100," + "\"mpaId\":1," + "\"releaseDate\":\"2001-01-01\"," + "\"duration\":100" + "}";
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f1)).andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1));
         mvc.perform(post("/films").contentType(MediaType.APPLICATION_JSON).content(f2)).andExpect(status().isOk()).andExpect(jsonPath("$.id").value(2));
 

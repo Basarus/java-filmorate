@@ -4,6 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.filmorate.model.Film;
 import ru.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.practicum.filmorate.storage.genre.InMemoryGenreStorage;
+import ru.practicum.filmorate.storage.likes.InMemoryLikesStorage;
+import ru.practicum.filmorate.storage.mpa.InMemoryMpaStorage;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -18,7 +21,11 @@ public class FilmServiceValidationTest {
     void setUp() {
         var filmStorage = new InMemoryFilmStorage();
         var userStorage = new InMemoryUserStorage();
-        service = new FilmService(filmStorage, userStorage);
+        var mpaStorage = new InMemoryMpaStorage();
+        var genreStorage = new InMemoryGenreStorage();
+        var likesStorage = new InMemoryLikesStorage();
+        var filmQueryService = new InMemoryFilmQueryService(filmStorage, mpaStorage, genreStorage, likesStorage);
+        service = new FilmService(filmStorage, userStorage, filmQueryService, likesStorage, mpaStorage, genreStorage);
     }
 
     private Film validFilm() {

@@ -1,0 +1,20 @@
+DELETE FROM film_likes;
+DELETE FROM film_genre;
+DELETE FROM films;
+DELETE FROM genres;
+DELETE FROM mpa;
+
+INSERT INTO mpa (id, name, description) VALUES
+  (1, 'G',     'Нет возрастных ограничений'),
+  (2, 'PG',    'Рекомендуется присутствие родителей'),
+  (3, 'PG-13', 'Детям до 13 лет просмотр не рекомендуется'),
+  (4, 'R',     'Лицам до 17 лет обязательно присутствие взрослого'),
+  (5, 'NC-17', 'Лицам до 17 лет просмотр запрещён');
+
+INSERT INTO genres (id, name) VALUES
+(1, 'Комедия'),
+(2, 'Драма'),
+(3, 'Мультфильм'),
+(4, 'Триллер'),
+(5, 'Документальный'),
+(6, 'Боевик');

@@ -1,9 +1,12 @@
 package ru.practicum.filmorate.service;
 
+import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.practicum.filmorate.exception.NotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.filmorate.model.User;
+import ru.practicum.filmorate.storage.friendship.InMemoryFriendshipStorage;
 import ru.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -16,8 +19,9 @@ public class UserServiceValidationTest {
 
     @BeforeEach
     void setUp() {
-        var storage = new InMemoryUserStorage();
-        service = new UserService(storage);
+        var userStorage = new InMemoryUserStorage();
+        var friendStorage = new InMemoryFriendshipStorage();
+        service = new UserService(userStorage, friendStorage);
     }
 
     private User validUser() {
@@ -30,14 +34,14 @@ public class UserServiceValidationTest {
     }
 
     @Test
-    void nameFallbackToLoginWhenEmpty() {
+    void nameFallbackToLoginWhenEmpty() throws BadRequestException {
         User u = validUser();
         User saved = service.create(u);
         assertEquals("neo", saved.getName());
     }
 
     @Test
-    void acceptValidUser() {
+    void acceptValidUser() throws BadRequestException {
         User u = validUser();
         User saved = service.create(u);
         assertNotNull(saved.getId());
@@ -47,6 +51,8 @@ public class UserServiceValidationTest {
     void updateUnknownIdThrows404() {
         User u = validUser();
         u.setId(777);
-        assertThrows(NotFoundException.class, () -> service.update(u));
+        ResponseStatusException ex =
+                assertThrows(ResponseStatusException.class, () -> service.update(u));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
     }
 }
