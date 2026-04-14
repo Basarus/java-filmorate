@@ -14,7 +14,7 @@ import java.util.Optional;
 public class MpaDbStorage implements MpaStorage {
 
     private final JdbcTemplate jdbc;
-    private static final RowMapper<Mpa> M = (rs, n) -> new Mpa(rs.getInt("id"), rs.getString("name"));
+    private static final RowMapper<Mpa> M = (rs, n) -> new Mpa(rs.getInt("id"), rs.getString("name"), rs.getString("description"));
 
     public MpaDbStorage(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
@@ -22,12 +22,12 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public List<Mpa> findAll() {
-        return jdbc.query("SELECT id, name FROM mpa ORDER BY id", M);
+        return jdbc.query("SELECT id, name, description FROM mpa ORDER BY id", M);
     }
 
     @Override
     public Optional<Mpa> findById(int id) {
-        var list = jdbc.query("SELECT id, name FROM mpa WHERE id = ?", M, id);
+        var list = jdbc.query("SELECT id, name, description FROM mpa WHERE id = ?", M, id);
         return list.isEmpty() ? Optional.empty() : Optional.of(list.getFirst());
     }
 

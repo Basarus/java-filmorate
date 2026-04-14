@@ -39,7 +39,7 @@ class FilmSerializationIT {
                 "Some description",
                 LocalDate.of(2000, 1, 1),
                 90,
-                new Mpa(1, null),
+                new Mpa(1, null, null),
                 List.of(new GenreDto(1), new GenreDto(2))
         );
 

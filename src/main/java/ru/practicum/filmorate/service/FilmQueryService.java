@@ -33,7 +33,7 @@ public class FilmQueryService {
 
     public FullFilm load(int filmId) {
         var filmData = jdbc.query("""
-                SELECT f.*, m.name AS mpa_name
+                SELECT f.*, m.name AS mpa_name, m.description AS mpa_description
                 FROM films f
                 JOIN mpa m ON f.mpa_id = m.id
                 WHERE f.id = ?
@@ -45,7 +45,7 @@ public class FilmQueryService {
             f.setReleaseDate(rs.getDate("release_date").toLocalDate());
             f.setDuration(rs.getInt("duration"));
             f.setMpaId(rs.getInt("mpa_id"));
-            Mpa mpa = new Mpa(f.getMpaId(), rs.getString("mpa_name"));
+            Mpa mpa = new Mpa(f.getMpaId(), rs.getString("mpa_name"), rs.getString("mpa_description"));
             return new Object[]{f, mpa};
         }, filmId).stream().findFirst().orElse(null);
 
@@ -75,7 +75,7 @@ public class FilmQueryService {
 
         Map<Integer, Mpa> mpaMap = new HashMap<>();
         jdbc.query("SELECT * FROM mpa", rs -> {
-            mpaMap.put(rs.getInt("id"), new Mpa(rs.getInt("id"), rs.getString("name")));
+            mpaMap.put(rs.getInt("id"), new Mpa(rs.getInt("id"), rs.getString("name"), rs.getString("description")));
             return null;
         });
 

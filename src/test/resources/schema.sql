@@ -6,7 +6,8 @@ DROP TABLE IF EXISTS mpa;
 
 CREATE TABLE mpa (
     id INTEGER PRIMARY KEY,
-    name VARCHAR(100)
+    name VARCHAR(100),
+    description VARCHAR(255)
 );
 
 CREATE TABLE genres (

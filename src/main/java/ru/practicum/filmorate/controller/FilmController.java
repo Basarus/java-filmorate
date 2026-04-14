@@ -125,7 +125,7 @@ public class FilmController {
                 f.getDescription(),
                 f.getReleaseDate(),
                 f.getDuration(),
-                f.getMpaId() == null ? null : new Mpa(f.getMpaId(), null),
+                f.getMpaId() == null ? null : new Mpa(f.getMpaId(), null, null),
                 new ArrayList<>(),
                 f.getLikes() != null ? f.getLikes() : Set.of()
         );
